@@ -15,7 +15,7 @@ from colour import Color
 
 
 # Multi-dropdown options
-from controls import COUNTIES, WELL_STATUSES, WELL_TYPES, WELL_COLORS
+from controls import NEIGHBORHOODS
 
 # get relative data folder
 PATH = pathlib.Path(__file__).parent
@@ -26,18 +26,13 @@ app = dash.Dash(
 )
 server = app.server
 
-# Create controls
-county_options = [
-    {"label": str(COUNTIES[county]), "value": str(county)} for county in COUNTIES
-]
-
-well_status_options = [
-    {"label": well_status, "value": well_status}
-    for well_status in ['$', '$$', '$$$', '$$$$', '$$$$$']]
+price_range_options = [
+    {"label": price_range, "value": price_range}
+    for price_range in ['$', '$$', '$$$', '$$$$', '$$$$$']]
 
 well_type_options = [
-    {"label": str(WELL_TYPES[well_type]), "value": str(well_type)}
-    for well_type in WELL_TYPES
+    {"label": str(NEIGHBORHOODS[well_type]), "value": str(well_type)}
+    for well_type in NEIGHBORHOODS
 ]
 
 
@@ -145,9 +140,9 @@ app.layout = html.Div(
                         html.P("Filter by budget range:", className="control_label"),
                         dcc.Dropdown(
                             id="well_statuses",
-                            options=well_status_options,
+                            options=price_range_options,
                             multi=True,
-                            value=list(WELL_STATUSES.keys()),
+                            value=[],
                             className="dcc_control",
                         ),
                         dcc.Checklist(
@@ -171,7 +166,7 @@ app.layout = html.Div(
                             id="well_types",
                             options=well_type_options,
                             multi=True,
-                            value=list(WELL_TYPES.keys()),
+                            value=list(NEIGHBORHOODS.keys()),
                             className="dcc_control",
                         ),
                     ],
@@ -362,7 +357,7 @@ def update_production_text(well_statuses, well_types, hour_slider):
 @app.callback(Output("well_types", "value"), [Input("well_type_selector", "value")])
 def display_type(selector):
     if selector == "all":
-        return list(WELL_TYPES.keys())
+        return list(NEIGHBORHOODS.keys())
     elif selector == "productive":
         return ["GD", "GE", "GW", "IG", "IW", "OD", "OE", "OW"]
     return []
@@ -563,11 +558,12 @@ def make_aggregate_figure(well_statuses, well_types, hour_slider, walking_distan
         bargap=0.01,
         bargroupgap=0,
         barmode="group",
-        margin=go.layout.Margin(l=10, r=10, t=10, b=50),
+        margin=go.layout.Margin(l=40, r=40, t=30, b=50),
         showlegend=False,
         plot_bgcolor="#F9F9F9",
         paper_bgcolor="#F9F9F9",
         dragmode="select",
+        title="Select desired distance/rating combination",
         font=dict(color="black"),
         xaxis=dict(
             title='Total distance (miles)',
@@ -616,121 +612,6 @@ def make_aggregate_figure(well_statuses, well_types, hour_slider, walking_distan
         ],
         layout=layout,
     )
-
-"""
-# Selectors, main graph -> pie graph
-@app.callback(
-    Output("pie_graph", "figure"),
-    [
-        Input("well_statuses", "value"),
-        Input("well_types", "value"),
-        Input("hour_slider", "value"),
-    ],
-)
-def make_pie_figure(well_statuses, well_types, hour_slider):
-
-    layout_pie = copy.deepcopy(layout)
-
-    dff = filter_dataframe(df, well_statuses, well_types, hour_slider)
-
-    selected = dff["API_WellNo"].values
-    index, gas, oil, water = produce_aggregate(selected, hour_slider)
-
-    aggregate = dff.groupby(["Well_Type"]).count()
-
-    data = [
-        dict(
-            type="pie",
-            labels=["Gas", "Oil", "Water"],
-            values=[sum(gas), sum(oil), sum(water)],
-            name="Production Breakdown",
-            text=[
-                "Total Rating (mcf)",
-                "Total Price (bbl)",
-                "Total Water Produced (bbl)",
-            ],
-            hoverinfo="text+value+percent",
-            textinfo="label+percent+name",
-            hole=0.5,
-            marker=dict(colors=["#fac1b7", "#a9bb95", "#92d8d8"]),
-            domain={"x": [0, 0.45], "y": [0.2, 0.8]},
-        ),
-        dict(
-            type="pie",
-            labels=[WELL_TYPES[i] for i in aggregate.index],
-            values=aggregate["API_WellNo"],
-            name="Well Type Breakdown",
-            hoverinfo="label+text+value+percent",
-            textinfo="label+percent+name",
-            hole=0.5,
-            marker=dict(colors=[WELL_COLORS[i] for i in aggregate.index]),
-            domain={"x": [0.55, 1], "y": [0.2, 0.8]},
-        ),
-    ]
-    layout_pie["title"] = "Production Summary: {} to {}".format(
-        hour_slider[0], hour_slider[1]
-    )
-    layout_pie["font"] = dict(color="#777777")
-    layout_pie["legend"] = dict(
-        font=dict(color="#CCCCCC", size="10"), orientation="h", bgcolor="rgba(0,0,0,0)"
-    )
-
-    figure = dict(data=data, layout=layout_pie)
-    return figure
-
-
-# Selectors -> count graph
-@app.callback(
-    Output("count_graph", "figure"),
-    [
-        Input("well_statuses", "value"),
-        Input("well_types", "value"),
-        Input("hour_slider", "value"),
-    ],
-)
-def make_count_figure(well_statuses, well_types, hour_slider):
-
-    layout_count = copy.deepcopy(layout)
-
-    dff = filter_dataframe(df, well_statuses, well_types, [1960, 2017])
-    g = dff[["API_WellNo", "Date_Well_Completed"]]
-    g.index = g["Date_Well_Completed"]
-    g = g.resample("A").count()
-
-    colors = []
-    for i in range(1960, 2018):
-        if i >= int(hour_slider[0]) and i < int(hour_slider[1]):
-            colors.append("rgb(123, 199, 255)")
-        else:
-            colors.append("rgba(123, 199, 255, 0.2)")
-
-    data = [
-        dict(
-            type="scatter",
-            mode="markers",
-            x=g.index,
-            y=g["API_WellNo"] / 2,
-            name="All Wells",
-            opacity=0,
-            hoverinfo="skip",
-        ),
-        dict(
-            type="bar",
-            x=g.index,
-            y=g["API_WellNo"],
-            name="All Wells",
-            marker=dict(color=colors),
-        ),
-    ]
-
-    layout_count["title"] = "Bar opening dates"
-    layout_count["dragmode"] = "select"
-    layout_count["showlegend"] = False
-    layout_count["autosize"] = True
-
-    figure = dict(data=data, layout=layout_count)
-    return figure
-"""
 
 # Main
 if __name__ == "__main__":
