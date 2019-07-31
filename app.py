@@ -174,7 +174,10 @@ app.layout = html.Div(
                     id="cross-filter-options",
                 ),
                 html.Div(
-                    [
+                    [html.Div(
+                            [dcc.Graph(id="histogram")],
+                            className="pretty_container nine columns",
+                        ),
                         html.Div(
                             [
                                 html.Div(
@@ -206,6 +209,7 @@ app.layout = html.Div(
                             type='text',
                             placeholder='Max total walking distance'
                         )),
+
                       #  html.Div(
                       #      [dcc.Graph(id="count_graph")],
                       #      id="countGraphContainer",
@@ -237,10 +241,10 @@ app.layout = html.Div(
                #     [dcc.Graph(id="pie_graph")],
                #     className="pretty_container seven columns",
                # ),
-                html.Div(
-                    [dcc.Graph(id="histogram")],
-                    className="pretty_container five columns",
-                ),
+              #  html.Div(
+              #      [dcc.Graph(id="histogram")],
+              #      className="pretty_container five columns",
+              #  ),
             ],
             className="row flex-display",
         ),
@@ -415,8 +419,8 @@ def make_main_figure(
     well_statuses, well_types, hour_slider, selector, main_graph_layout
 ):
 
-    dff = filter_dataframe(df, well_statuses, well_types, hour_slider)
-
+    #dff = filter_dataframe(df, well_statuses, well_types, hour_slider)
+    dff = df
     traces = []
     for well_type, dfff in dff.groupby("Well_Type"):
         trace = dict(
@@ -425,19 +429,10 @@ def make_main_figure(
             lat=dfff["Surface_latitude"],
             text=dfff["Well_Name"],
             customdata=dfff["API_WellNo"],
-            name=WELL_TYPES[well_type],
+            name=NEIGHBORHOODS[well_type],
             marker=dict(size=4, opacity=0.6),
         )
         traces.append(trace)
-
-#    if main_graph_layout is not None and "locked" in selector:
-
-#        lon = float(main_graph_layout["mapbox"]["center"]["lon"])
-#        lat = float(main_graph_layout["mapbox"]["center"]["lat"])
-#        zoom = float(main_graph_layout["mapbox"]["zoom"])
-#        layout["mapbox"]["center"]["lon"] = lon
-#        layout["mapbox"]["center"]["lat"] = lat
-#        layout["mapbox"]["zoom"] = zoom
 
     figure = dict(data=traces, layout=layout)
     return figure
@@ -539,7 +534,7 @@ def update_selected_data(clickData):
 )
 def make_aggregate_figure(well_statuses, well_types, hour_slider, walking_distance, main_graph_hover):
 
-    xVal = np.array([0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1, 1.1, 1.2, 1.3, 1.4, 1.5])
+    xVal = np.array([30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95])
     yVal = np.array([2.5, 3.2, 3.5, 3.8, 4.0, 4.2, 4.4, 4.6, 4.7, 4.8, 4.8, 4.8, 4.8, 4.8])
 
     colors = list(Color("blue").range_to(Color("green"), len(xVal)))
@@ -563,10 +558,10 @@ def make_aggregate_figure(well_statuses, well_types, hour_slider, walking_distan
         plot_bgcolor="#F9F9F9",
         paper_bgcolor="#F9F9F9",
         dragmode="select",
-        title="Select desired distance/rating combination",
+        title="Select desired walking and waiting time / rating combination",
         font=dict(color="black"),
         xaxis=dict(
-            title='Total distance (miles)',
+            title='Total time spent walking and waiting at bars (minutes)',
             range=[min(xVal), max(xVal)],
             showgrid=False,
             nticks=25,
