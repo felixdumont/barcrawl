@@ -3,7 +3,6 @@
   <component name="ChangeListManager">
     <list default="true" id="afb6af0f-37e0-416b-9818-27d6553f7846" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/app.py" beforeDir="false" afterPath="$PROJECT_DIR$/app.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/processing/business_processing.py" beforeDir="false" afterPath="$PROJECT_DIR$/processing/business_processing.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -16,8 +15,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/app.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="323">
-              <caret line="203" column="59" selection-start-line="203" selection-start-column="59" selection-end-line="203" selection-end-column="59" />
+            <state relative-caret-position="212">
+              <caret line="181" column="41" selection-start-line="181" selection-start-column="32" selection-end-line="181" selection-end-column="41" />
               <folding>
                 <element signature="e#28#41#0" expanded="true" />
               </folding>
@@ -80,8 +79,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>well_status_selec</find>
-      <find>[input(</find>
       <find>well_status</find>
       <find>display_status</find>
       <find>unique</find>
@@ -92,7 +89,6 @@
       <find>well_type_options</find>
       <find>WELL_TYPES</find>
       <find>total</find>
-      <find>well</find>
       <find>dataset</find>
       <find>make_individual_figure</find>
       <find>walking_distance</find>
@@ -107,9 +103,12 @@
       <find>individual_graph</find>
       <find>main_graph</find>
       <find>well_statuses</find>
-      <find>well_types</find>
-      <find>well_type_selector</find>
       <find>hour_slider</find>
+      <find>well_type_selector</find>
+      <find>well_types</find>
+      <find>well</find>
+      <find>walking_time</find>
+      <find>min_review_ct</find>
     </findStrings>
     <replaceStrings>
       <replace>Rating</replace>
@@ -132,7 +131,7 @@
       </list>
     </option>
   </component>
-  <component name="ProjectFrameBounds" extendedState="7">
+  <component name="ProjectFrameBounds" extendedState="6">
     <option name="x" value="100" />
     <option name="y" value="20" />
     <option name="width" value="1400" />
@@ -307,8 +306,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/app.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="323">
-          <caret line="203" column="59" selection-start-line="203" selection-start-column="59" selection-end-line="203" selection-end-column="59" />
+        <state relative-caret-position="212">
+          <caret line="181" column="41" selection-start-line="181" selection-start-column="32" selection-end-line="181" selection-end-column="41" />
           <folding>
             <element signature="e#28#41#0" expanded="true" />
           </folding>

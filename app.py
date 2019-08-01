@@ -137,6 +137,48 @@ app.layout = html.Div(
                                 initial_visible_month=dt.datetime(2020, 8, 5),
                                 date=str(dt.datetime.today()))
                         ),
+                        html.P("Start time", className="control_label"),
+                        dcc.Dropdown(
+                            id='start_time',
+                            options=[
+                                {'label': '12:00pm', 'value': '12'},
+                                {'label': '1:00pm', 'value': '13'},
+                                {'label': '2:00pm', 'value': '14'},
+                                {'label': '3:00pm', 'value': '15'},
+                                {'label': '4:00pm', 'value': '16'},
+                                {'label': '5:00pm', 'value': '17'},
+                                {'label': '6:00pm', 'value': '18'},
+                                {'label': '7:00pm', 'value': '19'},
+                                {'label': '8:00pm', 'value': '20'},
+                                {'label': '9:00pm', 'value': '21'},
+                                {'label': '10:00pm', 'value': '22'},
+                                {'label': '11:00pm', 'value': '23'},
+                                {'label': '12:00am', 'value': '0'},
+                                {'label': '1:00am', 'value': '1'},
+                                {'label': '2:00am', 'value': '2'}
+                            ],
+                        ),
+                        html.P("End time", className="control_label"),
+                        dcc.Dropdown(
+                            id='end_time',
+                            options=[
+                                {'label': '12:00pm', 'value': '12'},
+                                {'label': '1:00pm', 'value': '13'},
+                                {'label': '2:00pm', 'value': '14'},
+                                {'label': '3:00pm', 'value': '15'},
+                                {'label': '4:00pm', 'value': '16'},
+                                {'label': '5:00pm', 'value': '17'},
+                                {'label': '6:00pm', 'value': '18'},
+                                {'label': '7:00pm', 'value': '19'},
+                                {'label': '8:00pm', 'value': '20'},
+                                {'label': '9:00pm', 'value': '21'},
+                                {'label': '10:00pm', 'value': '22'},
+                                {'label': '11:00pm', 'value': '23'},
+                                {'label': '12:00am', 'value': '0'},
+                                {'label': '1:00am', 'value': '1'},
+                                {'label': '2:00am', 'value': '2'}
+                            ],
+                        ),
                         html.P("Filter by budget range:", className="control_label"),
                         dcc.Dropdown(
                             id="well_statuses",
@@ -145,18 +187,8 @@ app.layout = html.Div(
                             value=[],
                             className="dcc_control",
                         ),
+
                         html.P("Filter by neighborhood:", className="control_label"),
-                        dcc.RadioItems(
-                            id="well_type_selector",
-                            options=[
-                                {"label": "All ", "value": "all"},
-                                {"label": "Productive only ", "value": "productive"},
-                                {"label": "Customize ", "value": "custom"},
-                            ],
-                            value="productive",
-                            labelStyle={"display": "inline-block"},
-                            className="dcc_control",
-                        ),
                         dcc.Dropdown(
                             id="well_types",
                             options=well_type_options,
@@ -164,31 +196,42 @@ app.layout = html.Div(
                             value=list(NEIGHBORHOODS.keys()),
                             className="dcc_control",
                         ),
+                        html.P("Number of bars", className="control_label"),
                         html.Div(dcc.Input(
                             id="num_stops",
                             type='text',
+                            value=5,
                             placeholder='Number of bars to visit'
                         )),
+                        html.P("Maximum total walking time", className="control_label"),
                         html.Div(dcc.Input(
-                            id="walking_time",
+                            id="max_walking_time",
                             type='text',
+                            value=60,
                             placeholder='Max total walking time'
                         )),
+                        html.P("Maximum walking time between each bar", className="control_label"),
                         html.Div(dcc.Input(
                             id="single_walking_time",
                             type='text',
+                            value=15,
                             placeholder='Max walking time between each bar'
                         )),
+                        html.P("Minimum number of reviews by bar", className="control_label"),
                         html.Div(dcc.Input(
                             id="min_review_ct",
                             type='text',
+                            value=5,
                             placeholder='Min number of reviews by bar'
                         )),
+                        html.P("Minimum bar review (from 0 to 5)", className="control_label"),
                         html.Div(dcc.Input(
                             id="min_review",
                             type='text',
+                            value=3,
                             placeholder='Min bar review'
                         )),
+
                     ],
                     className="pretty_container six columns",
                     id="cross-filter-options",
@@ -201,8 +244,14 @@ app.layout = html.Div(
                         html.Div(
                             [
                                 html.Div(
-                                    [html.H6(id="well_text"), html.P("Total walking distance")],
-                                    id="wells",
+                                    [html.P("Total walking time"),
+                             #       id="walking_time_val",
+                             #       className="mini_container",
+                                    html.Div(dcc.Input(
+                                        id="walking_time",
+                                        type='text',
+                                        value=60
+                                    )),],
                                     className="mini_container",
                                 ),
                                 html.Div(
@@ -349,8 +398,9 @@ def produce_aggregate(selected, hour_slider):
 
 
 # Radio -> multi
-@app.callback(Output("well_types", "value"), [Input("well_type_selector", "value")])
-def display_type(selector):
+@app.callback(Output("well_types", "value"))
+def display_type():
+    selector = 'all'
     if selector == "all":
         return list(NEIGHBORHOODS.keys())
     elif selector == "productive":
