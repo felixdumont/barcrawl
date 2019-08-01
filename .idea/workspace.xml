@@ -2,7 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="afb6af0f-37e0-416b-9818-27d6553f7846" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/processing/business_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/processing/business_utils.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app.py" beforeDir="false" afterPath="$PROJECT_DIR$/app.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/processing/business_processing.py" beforeDir="false" afterPath="$PROJECT_DIR$/processing/business_processing.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -12,21 +13,16 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/app.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="553">
-              <caret line="49" lean-forward="true" selection-start-line="49" selection-end-line="49" />
+            <state relative-caret-position="323">
+              <caret line="203" column="59" selection-start-line="203" selection-start-column="59" selection-end-line="203" selection-end-column="59" />
               <folding>
                 <element signature="e#28#41#0" expanded="true" />
               </folding>
             </state>
           </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/data/business.json">
-          <provider selected="true" editor-type-id="LargeFileEditor" />
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
@@ -49,17 +45,17 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/processing/business_processing.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="255">
-              <caret line="15" column="32" selection-start-line="15" selection-start-column="32" selection-end-line="15" selection-end-column="32" />
+            <state relative-caret-position="289">
+              <caret line="17" column="20" lean-forward="true" selection-start-line="17" selection-start-column="20" selection-end-line="17" selection-end-column="20" />
             </state>
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/processing/business_utils.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="425">
-              <caret line="25" column="55" selection-start-line="25" selection-start-column="55" selection-end-line="25" selection-end-column="55" />
+            <state relative-caret-position="459">
+              <caret line="27" column="8" lean-forward="true" selection-start-line="27" selection-start-column="8" selection-end-line="27" selection-end-column="8" />
             </state>
           </provider>
         </entry>
@@ -84,24 +80,11 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>wildc</find>
-      <find>.csv</find>
-      <find>well type</find>
-      <find>filter by</find>
-      <find>Gas produced</find>
-      <find>Oil produced</find>
-      <find>magnitude</find>
-      <find>human_format</find>
-      <find>year_sli</find>
-      <find>year_slider</find>
-      <find>well_status_selector</find>
       <find>well_status_selec</find>
       <find>[input(</find>
       <find>well_status</find>
-      <find>hour_slider</find>
       <find>display_status</find>
       <find>unique</find>
-      <find>well_statuses</find>
       <find>well_status_options</find>
       <find>COUNTIES</find>
       <find>county_options</find>
@@ -112,8 +95,21 @@
       <find>well</find>
       <find>dataset</find>
       <find>make_individual_figure</find>
+      <find>walking_distance</find>
+      <find>dt.</find>
+      <find>lock_sel</find>
+      <find>hour_s</find>
+      <find>filter_dataframe</find>
+      <find>aggregate_data</find>
+      <find>well_text</find>
+      <find>gastext</find>
+      <find>oiltext</find>
       <find>individual_graph</find>
       <find>main_graph</find>
+      <find>well_statuses</find>
+      <find>well_types</find>
+      <find>well_type_selector</find>
+      <find>hour_slider</find>
     </findStrings>
     <replaceStrings>
       <replace>Rating</replace>
@@ -128,15 +124,15 @@
       <list>
         <option value="$PROJECT_DIR$/processing/json_to_csv.py" />
         <option value="$PROJECT_DIR$/requirements.txt" />
-        <option value="$PROJECT_DIR$/processing/business_processing.py" />
         <option value="$PROJECT_DIR$/README.md" />
         <option value="$PROJECT_DIR$/controls.py" />
-        <option value="$PROJECT_DIR$/app.py" />
         <option value="$PROJECT_DIR$/processing/business_utils.py" />
+        <option value="$PROJECT_DIR$/processing/business_processing.py" />
+        <option value="$PROJECT_DIR$/app.py" />
       </list>
     </option>
   </component>
-  <component name="ProjectFrameBounds" extendedState="6">
+  <component name="ProjectFrameBounds" extendedState="7">
     <option name="x" value="100" />
     <option name="y" value="20" />
     <option name="width" value="1400" />
@@ -292,27 +288,30 @@
     <entry file="file://$PROJECT_DIR$/models/models.py">
       <provider selected="true" editor-type-id="text-editor" />
     </entry>
-    <entry file="file://$PROJECT_DIR$/app.py">
+    <entry file="file://$PROJECT_DIR$/processing/business_utils.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="553">
-          <caret line="49" lean-forward="true" selection-start-line="49" selection-end-line="49" />
-          <folding>
-            <element signature="e#28#41#0" expanded="true" />
-          </folding>
+        <state relative-caret-position="459">
+          <caret line="27" column="8" lean-forward="true" selection-start-line="27" selection-start-column="8" selection-end-line="27" selection-end-column="8" />
         </state>
       </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/business.csv">
+      <provider selected="true" editor-type-id="LargeFileEditor" />
     </entry>
     <entry file="file://$PROJECT_DIR$/processing/business_processing.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="255">
-          <caret line="15" column="32" selection-start-line="15" selection-start-column="32" selection-end-line="15" selection-end-column="32" />
+        <state relative-caret-position="289">
+          <caret line="17" column="20" lean-forward="true" selection-start-line="17" selection-start-column="20" selection-end-line="17" selection-end-column="20" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/processing/business_utils.py">
+    <entry file="file://$PROJECT_DIR$/app.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="425">
-          <caret line="25" column="55" selection-start-line="25" selection-start-column="55" selection-end-line="25" selection-end-column="55" />
+        <state relative-caret-position="323">
+          <caret line="203" column="59" selection-start-line="203" selection-start-column="59" selection-end-line="203" selection-end-column="59" />
+          <folding>
+            <element signature="e#28#41#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>

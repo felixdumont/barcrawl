@@ -71,7 +71,6 @@ layout = dict(
 # Create app layout
 app.layout = html.Div(
     [
-        dcc.Store(id="aggregate_data"),
         # empty Div to trigger javascript file for graph resizing
         html.Div(id="output-clientside"),
         html.Div(
@@ -127,15 +126,16 @@ app.layout = html.Div(
                 html.Div(
                     [
                         html.P(
-                            "Filter by date (or select range in histogram):",
+                            "Select a date:",
                             className="control_label",
                         ),
-                        dcc.RangeSlider(
-                            id="hour_slider",
-                            min=1960,
-                            max=2017,
-                            value=[1990, 2010],
-                            className="dcc_control",
+                        html.Div(
+                            dcc.DatePickerSingle(
+                                id='crawl_date',
+                                min_date_allowed=dt.datetime.today(),
+                                max_date_allowed=dt.datetime(2020, 9, 19),
+                                initial_visible_month=dt.datetime(2020, 8, 5),
+                                date=str(dt.datetime.today()))
                         ),
                         html.P("Filter by budget range:", className="control_label"),
                         dcc.Dropdown(
@@ -143,11 +143,6 @@ app.layout = html.Div(
                             options=price_range_options,
                             multi=True,
                             value=[],
-                            className="dcc_control",
-                        ),
-                        dcc.Checklist(
-                            id="lock_selector",
-                            options=[{"label": "Lock camera", "value": "locked"}],
                             className="dcc_control",
                         ),
                         html.P("Filter by neighborhood:", className="control_label"),
@@ -169,8 +164,33 @@ app.layout = html.Div(
                             value=list(NEIGHBORHOODS.keys()),
                             className="dcc_control",
                         ),
+                        html.Div(dcc.Input(
+                            id="num_stops",
+                            type='text',
+                            placeholder='Number of bars to visit'
+                        )),
+                        html.Div(dcc.Input(
+                            id="walking_time",
+                            type='text',
+                            placeholder='Max total walking time'
+                        )),
+                        html.Div(dcc.Input(
+                            id="single_walking_time",
+                            type='text',
+                            placeholder='Max walking time between each bar'
+                        )),
+                        html.Div(dcc.Input(
+                            id="min_review_ct",
+                            type='text',
+                            placeholder='Min number of reviews by bar'
+                        )),
+                        html.Div(dcc.Input(
+                            id="min_review",
+                            type='text',
+                            placeholder='Min bar review'
+                        )),
                     ],
-                    className="pretty_container four columns",
+                    className="pretty_container six columns",
                     id="cross-filter-options",
                 ),
                 html.Div(
@@ -204,11 +224,6 @@ app.layout = html.Div(
                             id="info-container",
                             className="row container-display",
                         ),
-                        html.Div(dcc.Input(
-                            id="walking_distance",
-                            type='text',
-                            placeholder='Max total walking distance'
-                        )),
 
                       #  html.Div(
                       #      [dcc.Graph(id="count_graph")],
@@ -332,30 +347,6 @@ def produce_aggregate(selected, hour_slider):
 
     return index, gas, oil, water
 
-"""
-# Create callbacks
-app.clientside_callback(
-    ClientsideFunction(namespace="clientside", function_name="resize"),
-    Output("output-clientside", "children"),
-    [Input("count_graph", "figure")],
-)
-"""
-
-@app.callback(
-    Output("aggregate_data", "data"),
-    [
-        Input("well_statuses", "value"),
-        Input("well_types", "value"),
-        Input("hour_slider", "value"),
-    ],
-)
-def update_production_text(well_statuses, well_types, hour_slider):
-
-    dff = filter_dataframe(df, well_statuses, well_types, hour_slider)
-    selected = dff["API_WellNo"].values
-    index, gas, oil, water = produce_aggregate(selected, hour_slider)
-    return [human_format(sum(gas)), human_format(sum(oil)), human_format(sum(water))]
-
 
 # Radio -> multi
 @app.callback(Output("well_types", "value"), [Input("well_type_selector", "value")])
@@ -378,45 +369,18 @@ def update_hour_slider(count_graph_selected):
     return [min(nums) + 1960, max(nums) + 1961]
 """
 
-# Selectors -> well text
-@app.callback(
-    Output("well_text", "children"),
-    [
-        Input("well_statuses", "value"),
-        Input("well_types", "value"),
-        Input("hour_slider", "value"),
-    ],
-)
-def update_well_text(well_statuses, well_types, hour_slider):
-
-    dff = filter_dataframe(df, well_statuses, well_types, hour_slider)
-    return dff.shape[0]
-
-
-@app.callback(
-    [
-        Output("gasText", "children"),
-        Output("oilText", "children"),
-        Output("waterText", "children"),
-    ],
-    [Input("aggregate_data", "data")],
-)
-def update_text(data):
-    return data[0] + "", data[1] + "", data[2] + ""
-
 
 # Selectors -> main graph
 @app.callback(
     Output("main_graph", "figure"),
     [
         Input("well_statuses", "value"),
-        Input("well_types", "value"),
-        Input("hour_slider", "value"),
+        Input("well_types", "value")
     ],
-    [State("lock_selector", "value"), State("main_graph", "relayoutData")],
+    [State("main_graph", "relayoutData")],
 )
 def make_main_figure(
-    well_statuses, well_types, hour_slider, selector, main_graph_layout
+    well_statuses, well_types, main_graph_layout
 ):
 
     #dff = filter_dataframe(df, well_statuses, well_types, hour_slider)
@@ -504,7 +468,7 @@ def make_individual_figure(main_graph_hover):
 
 # Selected Data in the Histogram updates the Values in the DatePicker
 @app.callback(
-    Output("walking_distance", "value"),
+    Output("walking_time", "value"),
     [Input("histogram", "selectedData"), Input("histogram", "clickData")],
 )
 def update_bar_selector(value, clickData):
@@ -527,12 +491,11 @@ def update_selected_data(clickData):
     [
         Input("well_statuses", "value"),
         Input("well_types", "value"),
-        Input("hour_slider", "value"),
-        Input("walking_distance", "value"),
+        Input("walking_time", "value"),
         Input("main_graph", "hoverData"),
     ],
 )
-def make_aggregate_figure(well_statuses, well_types, hour_slider, walking_distance, main_graph_hover):
+def make_aggregate_figure(well_statuses, well_types, walking_distance, main_graph_hover):
 
     xVal = np.array([30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95])
     yVal = np.array([2.5, 3.2, 3.5, 3.8, 4.0, 4.2, 4.4, 4.6, 4.7, 4.8, 4.8, 4.8, 4.8, 4.8])

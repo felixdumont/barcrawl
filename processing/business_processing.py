@@ -5,6 +5,10 @@ def read_json(file):
     return pd.read_json(file, lines=True)
 
 
+def parse_attributes(attribute_field):
+    pass
+
+
 def clean_dtypes(df):
     df['categories'] = df['categories'].astype('str')
     # TODO: Add logic for other fields
