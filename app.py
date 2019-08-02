@@ -60,8 +60,8 @@ layout = dict(
     mapbox=dict(
         accesstoken=mapbox_access_token,
         style="light",
-        center=dict(lon=-78.05, lat=42.54),
-        zoom=7,
+        center=dict(lon=-79.41, lat=43.76),
+        zoom=15,
     ),
 )
 
@@ -300,7 +300,7 @@ app.layout = html.Div(
         html.Div(
             [
                 html.Div(
-                    [dcc.Graph(id="main_graph")],
+                    [dcc.Graph(id="satellite_graph")],
                     className="pretty_container seven columns",
                 ),
                 html.Div(
@@ -326,6 +326,7 @@ app.layout = html.Div(
     ],
     id="mainContainer",
     style={"display": "flex", "flex-direction": "column"},
+    
 )
 
 
@@ -398,24 +399,48 @@ def produce_aggregate(selected, hour_slider):
 
 # Selectors -> main graph
 @app.callback(
-    Output("main_graph", "figure"),
+    Output("satellite_graph", "figure"),
     [Input("walking_time", "value")]
 )
 def make_main_figure(walking_time):
     # dff = filter_dataframe(df, well_statuses, well_types, hour_slider)
-    dff = df
+    df = pd.read_csv('business.csv')
+    df_bars = df[(df['categories'].str.contains('Bars')
+                  | df['categories'].str.contains('Nightlife')
+                  | df['categories'].str.contains('Pubs'))
+                 & (~df['categories'].str.contains('Sushi Bars')
+                    & ~df['categories'].str.contains('Juice Bars'))]
+    dff = df_bars.loc[lambda f: f['city'] == 'Toronto'][:10]
+    dff['rounded_review'] = round(dff['stars'],0)
     traces = []
-    for well_type, dfff in dff.groupby("Well_Type"):
+    for name, dfff in dff.groupby("name"):
         trace = dict(
             type="scattermapbox",
-            lon=dfff["Surface_Longitude"],
-            lat=dfff["Surface_latitude"],
-            text=dfff["Well_Name"],
-            customdata=dfff["API_WellNo"],
-            name=NEIGHBORHOODS[well_type],
-            marker=dict(size=4, opacity=0.6),
+            lon=dfff["longitude"],
+            lat=dfff["latitude"],
+            text=dfff['name'],
+            customdata=dfff["rounded_review"],
+            name=name,
+            marker=dict(size=12, opacity=0.6),
         )
         traces.append(trace)
+
+    layout = dict(
+        autosize=True,
+        automargin=True,
+        margin=dict(l=30, r=30, b=20, t=40),
+        hoverinfo="name",
+        plot_bgcolor="#F9F9F9",
+        paper_bgcolor="#F9F9F9",
+        legend=dict(font=dict(size=10), orientation="h"),
+        title="Satellite Overview",
+        mapbox=dict(
+            accesstoken=mapbox_access_token,
+            style="light",
+            center=dict(lon=dff['longitude'].mean(), lat=dff['latitude'].mean()),
+            zoom=12,
+        ),
+    )
 
     figure = dict(data=traces, layout=layout)
     return figure
@@ -429,7 +454,7 @@ def filter_dataframe(go, num_stops):
 
 
 # Main graph -> individual graph
-@app.callback(Output("individual_graph", "figure"), [Input("main_graph", "hoverData")])
+@app.callback(Output("individual_graph", "figure"), [Input("satellite_graph", "hoverData")])
 def make_individual_figure(main_graph_hover):
     layout_individual = copy.deepcopy(layout)
 
@@ -518,7 +543,7 @@ def update_selected_data(clickData):
     ],
     [
         State("walking_time", "value"),
-        State("main_graph", "hoverData"),
+        State("satellite_graph", "hoverData"),
     ],
 
 )
