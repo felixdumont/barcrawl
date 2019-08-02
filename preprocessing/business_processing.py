@@ -15,7 +15,12 @@ def clean_dtypes(df):
     return df
 
 
-def filter_bars(df):
+def one_time_filter(df):
+    """
+    Removes all non-bars from the dataset and other locations we would never consider
+    :param df:
+    :return:
+    """
     df_bars = df[(df['categories'].str.contains('Bars')
                   | df['categories'].str.contains('Nightlife')
                   | df['categories'].str.contains('Pubs'))
@@ -29,5 +34,5 @@ def filter_bars(df):
 def generate_business_csv(json_file, file_dest):
     df = read_json(json_file)
     df = clean_dtypes(df)
-    df = filter_bars(df)
+    df = one_time_filter(df)
     df.to_csv(file_dest)

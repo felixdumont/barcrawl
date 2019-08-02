@@ -13,7 +13,6 @@ import dash_html_components as html
 from plotly import graph_objs as go
 from colour import Color
 
-
 # Multi-dropdown options
 from controls import NEIGHBORHOODS
 
@@ -35,7 +34,6 @@ well_type_options = [
     for well_type in NEIGHBORHOODS
 ]
 
-
 # Load data
 df = pd.read_csv(DATA_PATH.joinpath("wellspublic.csv"), low_memory=False)
 df["Date_Well_Completed"] = pd.to_datetime(df["Date_Well_Completed"])
@@ -46,7 +44,6 @@ trim.index = trim["API_WellNo"]
 dataset = trim.to_dict(orient="index")
 
 points = pickle.load(open(DATA_PATH.joinpath("points.pkl"), "rb"))
-
 
 # Create global chart template
 mapbox_access_token = "pk.eyJ1IjoiamFja2x1byIsImEiOiJjajNlcnh3MzEwMHZtMzNueGw3NWw5ZXF5In0.fk8k06T96Ml9CLGgKmk81w"
@@ -124,61 +121,66 @@ app.layout = html.Div(
         html.Div(
             [
                 html.Div(
-                    [
-                        html.P(
-                            "Select a date:",
-                            className="control_label",
-                        ),
-                        html.Div(
-                            dcc.DatePickerSingle(
-                                id='crawl_date',
-                                min_date_allowed=dt.datetime.today(),
-                                max_date_allowed=dt.datetime(2020, 9, 19),
-                                initial_visible_month=dt.datetime(2020, 8, 5),
-                                date=str(dt.datetime.today()))
-                        ),
-                        html.P("Start time", className="control_label"),
-                        dcc.Dropdown(
-                            id='start_time',
-                            options=[
-                                {'label': '12:00pm', 'value': '12'},
-                                {'label': '1:00pm', 'value': '13'},
-                                {'label': '2:00pm', 'value': '14'},
-                                {'label': '3:00pm', 'value': '15'},
-                                {'label': '4:00pm', 'value': '16'},
-                                {'label': '5:00pm', 'value': '17'},
-                                {'label': '6:00pm', 'value': '18'},
-                                {'label': '7:00pm', 'value': '19'},
-                                {'label': '8:00pm', 'value': '20'},
-                                {'label': '9:00pm', 'value': '21'},
-                                {'label': '10:00pm', 'value': '22'},
-                                {'label': '11:00pm', 'value': '23'},
-                                {'label': '12:00am', 'value': '0'},
-                                {'label': '1:00am', 'value': '1'},
-                                {'label': '2:00am', 'value': '2'}
-                            ],
-                        ),
-                        html.P("End time", className="control_label"),
-                        dcc.Dropdown(
-                            id='end_time',
-                            options=[
-                                {'label': '12:00pm', 'value': '12'},
-                                {'label': '1:00pm', 'value': '13'},
-                                {'label': '2:00pm', 'value': '14'},
-                                {'label': '3:00pm', 'value': '15'},
-                                {'label': '4:00pm', 'value': '16'},
-                                {'label': '5:00pm', 'value': '17'},
-                                {'label': '6:00pm', 'value': '18'},
-                                {'label': '7:00pm', 'value': '19'},
-                                {'label': '8:00pm', 'value': '20'},
-                                {'label': '9:00pm', 'value': '21'},
-                                {'label': '10:00pm', 'value': '22'},
-                                {'label': '11:00pm', 'value': '23'},
-                                {'label': '12:00am', 'value': '0'},
-                                {'label': '1:00am', 'value': '1'},
-                                {'label': '2:00am', 'value': '2'}
-                            ],
-                        ),
+                    [html.Div([
+                        html.Div([
+                            html.P(
+                                "Select a date:",
+                                className="control_label",
+                            ),
+                            html.Div(
+                                dcc.DatePickerSingle(
+                                    id='crawl_date',
+                                    min_date_allowed=dt.datetime.today(),
+                                    max_date_allowed=dt.datetime(2020, 9, 19),
+                                    initial_visible_month=dt.datetime(2020, 8, 5),
+                                    date=str(dt.datetime.today()))
+                            ), ],
+                            className="one-third column"),
+                        html.Div([
+                            html.P("Start time", className="control_label"),
+                            dcc.Dropdown(
+                                id='start_time',
+                                options=[
+                                    {'label': '12:00pm', 'value': '12'},
+                                    {'label': '1:00pm', 'value': '13'},
+                                    {'label': '2:00pm', 'value': '14'},
+                                    {'label': '3:00pm', 'value': '15'},
+                                    {'label': '4:00pm', 'value': '16'},
+                                    {'label': '5:00pm', 'value': '17'},
+                                    {'label': '6:00pm', 'value': '18'},
+                                    {'label': '7:00pm', 'value': '19'},
+                                    {'label': '8:00pm', 'value': '20'},
+                                    {'label': '9:00pm', 'value': '21'},
+                                    {'label': '10:00pm', 'value': '22'},
+                                    {'label': '11:00pm', 'value': '23'},
+                                    {'label': '12:00am', 'value': '0'},
+                                    {'label': '1:00am', 'value': '1'},
+                                    {'label': '2:00am', 'value': '2'}
+                                ],
+                            ), ], className="one-third column"),
+                        html.Div([
+                            html.P("End time", className="control_label"),
+                            dcc.Dropdown(
+                                id='end_time',
+                                options=[
+                                    {'label': '12:00pm', 'value': '12'},
+                                    {'label': '1:00pm', 'value': '13'},
+                                    {'label': '2:00pm', 'value': '14'},
+                                    {'label': '3:00pm', 'value': '15'},
+                                    {'label': '4:00pm', 'value': '16'},
+                                    {'label': '5:00pm', 'value': '17'},
+                                    {'label': '6:00pm', 'value': '18'},
+                                    {'label': '7:00pm', 'value': '19'},
+                                    {'label': '8:00pm', 'value': '20'},
+                                    {'label': '9:00pm', 'value': '21'},
+                                    {'label': '10:00pm', 'value': '22'},
+                                    {'label': '11:00pm', 'value': '23'},
+                                    {'label': '12:00am', 'value': '0'},
+                                    {'label': '1:00am', 'value': '1'},
+                                    {'label': '2:00am', 'value': '2'},
+                                    {'label': '3:00am', 'value': '3'}
+                                ],
+                            ), ], className="one-third column"), ], className="row flex-display"),
                         html.P("Filter by budget range:", className="control_label"),
                         dcc.Dropdown(
                             id="well_statuses",
@@ -187,22 +189,25 @@ app.layout = html.Div(
                             value=[],
                             className="dcc_control",
                         ),
-
-                        html.P("Filter by neighborhood:", className="control_label"),
-                        dcc.Dropdown(
-                            id="well_types",
-                            options=well_type_options,
-                            multi=True,
-                            value=list(NEIGHBORHOODS.keys()),
-                            className="dcc_control",
-                        ),
-                        html.P("Number of bars", className="control_label"),
-                        html.Div(dcc.Input(
-                            id="num_stops",
-                            type='text',
-                            value=5,
-                            placeholder='Number of bars to visit'
-                        )),
+                        html.Div([
+                            html.P("Number of bars", className="control_label"),
+                            html.Div(
+                                dcc.Slider(
+                                    id='num_stops',
+                                    min=0,
+                                    max=10,
+                                    value=5,
+                                    marks={
+                                        2: {'label': '2'},
+                                        4: {'label': '4'},
+                                        6: {'label': '6'},
+                                        8: {'label': '8'},
+                                        10: {'label': '10'},
+                                    }
+                                ))], className="one-half column"),
+                        html.Br(),
+                        html.Br(),
+                        html.Br(),
                         html.P("Maximum total walking time", className="control_label"),
                         html.Div(dcc.Input(
                             id="max_walking_time",
@@ -231,32 +236,38 @@ app.layout = html.Div(
                             value=3,
                             placeholder='Min bar review'
                         )),
-
+                        html.Button('Go', id='go_button'),
                     ],
                     className="pretty_container six columns",
                     id="cross-filter-options",
                 ),
                 html.Div(
                     [html.Div(
-                            [dcc.Graph(id="histogram")],
-                            className="pretty_container nine columns",
-                        ),
+                        [dcc.Graph(id="histogram")],
+                        className="pretty_container nine columns",
+                    ),
                         html.Div(
                             [
                                 html.Div(
                                     [html.P("Total walking time"),
-                             #       id="walking_time_val",
-                             #       className="mini_container",
-                                    html.Div(dcc.Input(
-                                        id="walking_time",
-                                        type='text',
-                                        value=60
-                                    )),],
+                                     #       id="walking_time_val",
+                                     #       className="mini_container",
+                                     html.Div(dcc.Input(
+                                         id="walking_time",
+                                         type='text',
+                                         value=60
+                                     )), ],
                                     className="mini_container",
                                 ),
                                 html.Div(
-                                    [html.H6(id="gasText"), html.P("Combinations considered")],
-                                    id="gas",
+                                    [html.P("Combinations considered"),
+                                     #       id="walking_time_val",
+                                     #       className="mini_container",
+                                     html.Div(dcc.Input(
+                                         id="temp_val",
+                                         type='text',
+                                         value=60
+                                     )), ],
                                     className="mini_container",
                                 ),
                                 html.Div(
@@ -274,11 +285,11 @@ app.layout = html.Div(
                             className="row container-display",
                         ),
 
-                      #  html.Div(
-                      #      [dcc.Graph(id="count_graph")],
-                      #      id="countGraphContainer",
-                      #      className="pretty_container",
-                      #  ),
+                        #  html.Div(
+                        #      [dcc.Graph(id="count_graph")],
+                        #      id="countGraphContainer",
+                        #      className="pretty_container",
+                        #  ),
                     ],
                     id="right-column",
                     className="eight columns",
@@ -301,14 +312,14 @@ app.layout = html.Div(
         ),
         html.Div(
             [
-               # html.Div(
-               #     [dcc.Graph(id="pie_graph")],
-               #     className="pretty_container seven columns",
-               # ),
-              #  html.Div(
-              #      [dcc.Graph(id="histogram")],
-              #      className="pretty_container five columns",
-              #  ),
+                # html.Div(
+                #     [dcc.Graph(id="pie_graph")],
+                #     className="pretty_container seven columns",
+                # ),
+                #  html.Div(
+                #      [dcc.Graph(id="histogram")],
+                #      className="pretty_container five columns",
+                #  ),
             ],
             className="row flex-display",
         ),
@@ -320,20 +331,9 @@ app.layout = html.Div(
 
 # Helper functions
 def human_format(num):
-
-    magnitude = 1 #int(math.log(num, 1000))
+    magnitude = 1  # int(math.log(num, 1000))
     mantissa = str(int(num / (1000 ** magnitude)))
     return mantissa + ["", "K", "M", "G", "T", "P"][magnitude]
-
-
-def filter_dataframe(df, well_statuses, well_types, hour_slider):
-    dff = df[
-        df["Well_Status"].isin(well_statuses)
-        & df["Well_Type"].isin(well_types)
-        & (df["Date_Well_Completed"] > dt.datetime(hour_slider[0], 1, 1))
-        & (df["Date_Well_Completed"] < dt.datetime(hour_slider[1], 1, 1))
-    ]
-    return dff
 
 
 def produce_individual(api_well_num):
@@ -367,7 +367,6 @@ def produce_individual(api_well_num):
 
 
 def produce_aggregate(selected, hour_slider):
-
     index = list(range(max(hour_slider[0], 1985), 2016))
     gas = []
     oil = []
@@ -397,43 +396,13 @@ def produce_aggregate(selected, hour_slider):
     return index, gas, oil, water
 
 
-# Radio -> multi
-@app.callback(Output("well_types", "value"))
-def display_type():
-    selector = 'all'
-    if selector == "all":
-        return list(NEIGHBORHOODS.keys())
-    elif selector == "productive":
-        return ["GD", "GE", "GW", "IG", "IW", "OD", "OE", "OW"]
-    return []
-
-"""
-# Slider -> count graph
-@app.callback(Output("hour_slider", "value"), [Input("count_graph", "selectedData")])
-def update_hour_slider(count_graph_selected):
-
-    if count_graph_selected is None:
-        return [1990, 2010]
-
-    nums = [int(point["pointNumber"]) for point in count_graph_selected["points"]]
-    return [min(nums) + 1960, max(nums) + 1961]
-"""
-
-
 # Selectors -> main graph
 @app.callback(
     Output("main_graph", "figure"),
-    [
-        Input("well_statuses", "value"),
-        Input("well_types", "value")
-    ],
-    [State("main_graph", "relayoutData")],
+    [Input("walking_time", "value")]
 )
-def make_main_figure(
-    well_statuses, well_types, main_graph_layout
-):
-
-    #dff = filter_dataframe(df, well_statuses, well_types, hour_slider)
+def make_main_figure(walking_time):
+    # dff = filter_dataframe(df, well_statuses, well_types, hour_slider)
     dff = df
     traces = []
     for well_type, dfff in dff.groupby("Well_Type"):
@@ -451,11 +420,17 @@ def make_main_figure(
     figure = dict(data=traces, layout=layout)
     return figure
 
+@app.callback(Output("temp_val", "value"),
+              [Input("go_button", "n_clicks")],
+              [State("num_stops", "value")])
+def filter_dataframe(go, num_stops):
+    #TODO: Call model from here
+    return num_stops
+
 
 # Main graph -> individual graph
 @app.callback(Output("individual_graph", "figure"), [Input("main_graph", "hoverData")])
 def make_individual_figure(main_graph_hover):
-
     layout_individual = copy.deepcopy(layout)
 
     if main_graph_hover is None:
@@ -527,7 +502,6 @@ def update_bar_selector(value, clickData):
     return ''
 
 
-
 # Clear Selected Data if Click Data is used
 @app.callback(Output("histogram", "selectedData"), [Input("histogram", "clickData")])
 def update_selected_data(clickData):
@@ -539,29 +513,35 @@ def update_selected_data(clickData):
 @app.callback(
     Output("histogram", "figure"),
     [
-        Input("well_statuses", "value"),
-        Input("well_types", "value"),
-        Input("walking_time", "value"),
-        Input("main_graph", "hoverData"),
+        Input("go_button", "n_clicks"),
+        Input("histogram", "clickData")
     ],
-)
-def make_aggregate_figure(well_statuses, well_types, walking_distance, main_graph_hover):
+    [
+        State("walking_time", "value"),
+        State("main_graph", "hoverData"),
+    ],
 
-    xVal = np.array([30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95])
-    yVal = np.array([2.5, 3.2, 3.5, 3.8, 4.0, 4.2, 4.4, 4.6, 4.7, 4.8, 4.8, 4.8, 4.8, 4.8])
+)
+def make_aggregate_figure(nclicks, clickdata, walking_distance, main_graph_hover):
+    print(nclicks)
+    if nclicks is None:
+        return {}
+    else:
+        xVal = np.array([30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95])
+        yVal = np.array([2.5, 3.2, 3.5, 3.8, 4.0, 4.2, 4.4, 4.6, 4.7, 4.8, 4.8, 4.8, 4.8, 4.8])
 
     colors = list(Color("blue").range_to(Color("green"), len(xVal)))
 
     if walking_distance != '':
         walking_distance = float(walking_distance)
-        colors = [(255*c.rgb[0], 255*c.rgb[1], 255*c.rgb[2], 0.2) for c in colors]
+        colors = [(255 * c.rgb[0], 255 * c.rgb[1], 255 * c.rgb[2], 0.2) for c in colors]
     else:
-        colors = [(255*c.rgb[0], 255*c.rgb[1], 255*c.rgb[2], 0.5) for c in colors]
+        colors = [(255 * c.rgb[0], 255 * c.rgb[1], 255 * c.rgb[2], 0.5) for c in colors]
     if walking_distance in xVal:
         c_selected = colors[np.where(xVal == walking_distance)[0][0]]
         colors[np.where(xVal == walking_distance)[0][0]] = (c_selected[0], c_selected[1], c_selected[2], 0.5)
 
-    colors = ['rgba({},{},{},{})'.format(round(a,0),round(b,0),round(c,0),d) for (a,b,c,d) in colors]
+    colors = ['rgba({},{},{},{})'.format(round(a, 0), round(b, 0), round(c, 0), d) for (a, b, c, d) in colors]
     layout = go.Layout(
         bargap=0.01,
         bargroupgap=0,
@@ -579,10 +559,10 @@ def make_aggregate_figure(well_statuses, well_types, walking_distance, main_grap
             showgrid=False,
             nticks=25,
             fixedrange=True,
-          #  ticksuffix=":00",
+            #  ticksuffix=":00",
         ),
         yaxis=dict(
-         #   range=[0, max(yVal) + max(yVal) / 4],
+            #   range=[0, max(yVal) + max(yVal) / 4],
             title='Average rating',
             showticklabels=False,
             showgrid=False,
@@ -620,6 +600,7 @@ def make_aggregate_figure(well_statuses, well_types, walking_distance, main_grap
         ],
         layout=layout,
     )
+
 
 # Main
 if __name__ == "__main__":
