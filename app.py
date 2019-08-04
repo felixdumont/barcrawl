@@ -26,6 +26,8 @@ app = dash.Dash(
 )
 server = app.server
 
+app.config['suppress_callback_exceptions'] = True
+
 price_range_options = [
     {"label": price_range, "value": price_range}
     for price_range in ['$', '$$', '$$$', '$$$$', '$$$$$']]
@@ -242,7 +244,7 @@ app.layout = html.Div(
                                 ], className="eleven columns"),
                                 html.Div([
                                     html.Br(),
-                                    html.Button('Go', id='go_button'),
+                                    html.Button('Apply filters', id='apply_button', className="button_submit"),
                                 ], className="eight columns")
                             ], className="mobile_forms"),
                             ],
@@ -256,68 +258,99 @@ app.layout = html.Div(
                 ),
             ], className="four columns instruction",
             ),
+
             html.Div(
-                [html.Div(
-                    [dcc.Graph(id="histogram")],
-                    className="pretty_container nine columns",
-                ),
-                    html.Div(
-                        [
-                            html.Div(
-                                [html.Label("Total walking time"),
-                                 #       id="walking_time_val",
-                                 #       className="mini_container",
-                                 html.Div(dcc.Input(
-                                     id="walking_time",
-                                     type='text',
-                                     value=60
-                                 )), ],
-                                className="mini_container",
-                            ),
-                            html.Div(
-                                [html.Label("Combinations considered"),
-                                 #       id="walking_time_val",
-                                 #       className="mini_container",
-                                 html.Div(dcc.Input(
-                                     id="temp_val",
-                                     type='text',
-                                     value=60
-                                 )), ],
-                                className="mini_container",
-                            ),
-                            html.Div(
-                                [html.H6(id="oilText"), html.Label("Average rating")],
-                                id="oil",
-                                className="mini_container",
-                            ),
-                            html.Div(
-                                [html.H6(id="waterText"), html.Label("Estimated cost")],
-                                id="water",
-                                className="mini_container",
-                            ),
+                [
+                    html.Div([
+                        html.Label("Total walking time"),
+                        html.Div(dcc.Input(
+                            id="walking_time",
+                            type='text',
+                            value=60
+                        )), ],
+                        className="mini_container", hidden=True
+                    ),
+                    dcc.Tabs(
+                        id="crawl-tabs",
+                        value="tab-one",
+                        children=[
+                            dcc.Tab(label="INSTRUCTIONS", value="tab-one"),
+                            dcc.Tab(label="SELECT DESIRED TRADEOFFS", value="tab-two"),
+                            dcc.Tab(label="VIEW CRAWL", value="tab-three"),
                         ],
-                        id="info-container",
-                        className="row container-display",
+                        className="tabs",
                     ),
                     html.Div(
-                        [
-                            html.Div(
-                                [dcc.Graph(id="satellite_graph")],
-                                className="pretty_container seven columns",
-                            ),
-                            html.Div(
-                                [dcc.Graph(id="individual_graph")],
-                                className="pretty_container five columns",
-                            ),
-                        ],
-                        className="row flex-display",
-                    )], className="eight columns result",
+                        id="tabs-content-example",
+                        className="canvas",
+                        style={"text-align": "left", "margin": "auto"},
+                    ),
+
+                    dcc.Store(id="memory-stitch"),
+                ], className="eight columns result",
             )],
             className="row twelve columns", )
     ],
     id="mainContainer",
     style={"display": "flex", "flex-direction": "column"},
 )
+
+
+@app.callback(Output("memory-stitch", "data"), [Input("go_button", "n_clicks")])
+def update_store(click):
+    return click
+
+
+@app.callback(
+    Output("tabs-content-example", "children"), [Input("crawl-tabs", "value")]
+)
+def fill_tab(tab):
+    if tab == "tab-two":
+        return [
+            html.Div(
+                [html.Div([
+                    html.Br(),
+                    html.Button('Calculate routes', id='go_button', className="button_submit"),
+                ]),
+                    html.Div([
+                        dcc.Graph(id="histogram")], )],
+                className="row twelve columns")]
+    elif tab == "tab-three":
+        return [html.Div(
+            [html.Div([
+                html.Br(),
+                html.Button('Show selected route', id='details_button', className="button_submit"),
+            ]),
+                html.Div([
+                html.Div(
+                    [html.Label("Combinations considered"),
+                     html.Div(id="temp_val") ],
+                    className="mini_container",
+                ),
+                html.Div(
+                    [html.H6(id="oilText"), html.Label("Average rating")],
+                    id="oil",
+                    className="mini_container",
+                ),], className='row twelve columns')
+            ],
+            id="info-container",
+            className="row container-display",
+        ),
+            html.Div(
+                [
+                    html.Div(
+                        [dcc.Graph(id="satellite_graph")],
+                        className="pretty_container seven columns",
+                    ),
+                    html.Div(
+                        [dcc.Graph(id="individual_graph")],
+                        className="pretty_container five columns",
+                    ),
+                ],
+                className="row flex-display",
+            )]
+
+    return [html.P("Welcome to the bar crawl simulator. Please select your desired settings on the left and press GO.")]
 
 
 # Helper functions
@@ -390,9 +423,9 @@ def produce_aggregate(selected, hour_slider):
 # Selectors -> main graph
 @app.callback(
     Output("satellite_graph", "figure"),
-    [Input("walking_time", "value")]
+    [Input("walking_time", "value"), Input("details_button", "n_clicks")]
 )
-def make_main_figure(walking_time):
+def make_main_figure(walking_time, go_button):
     # dff = filter_dataframe(df, well_statuses, well_types, hour_slider)
     df = pd.read_csv('business.csv')
     df_bars = df[(df['categories'].str.contains('Bars')
@@ -437,7 +470,7 @@ def make_main_figure(walking_time):
 
 
 @app.callback(Output("temp_val", "value"),
-              [Input("go_button", "n_clicks")],
+              [Input("details_button", "n_clicks")],
               [State("num_stops", "value")])
 def filter_dataframe(go, num_stops):
     # TODO: Call model from here
@@ -534,11 +567,10 @@ def update_selected_data(clickData):
     ],
     [
         State("walking_time", "value"),
-        State("satellite_graph", "hoverData"),
     ],
 
 )
-def make_aggregate_figure(nclicks, clickdata, walking_distance, main_graph_hover):
+def make_aggregate_figure(nclicks, clickdata, walking_distance):
     print(nclicks)
     if nclicks is None:
         return {}
@@ -616,6 +648,13 @@ def make_aggregate_figure(nclicks, clickdata, walking_distance, main_graph_hover
         ],
         layout=layout,
     )
+
+
+@app.callback(Output("crawl-tabs", "value"), [Input("apply_button", "n_clicks")])
+def change_focus(click):
+    if click:
+        return "tab-two"
+    return "tab-one"
 
 
 # Main
