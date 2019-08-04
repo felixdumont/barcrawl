@@ -326,7 +326,6 @@ app.layout = html.Div(
     ],
     id="mainContainer",
     style={"display": "flex", "flex-direction": "column"},
-    
 )
 
 
