@@ -1,4 +1,5 @@
 # Import required libraries
+# Import required libraries
 import pickle
 import copy
 import pathlib
@@ -70,259 +71,249 @@ app.layout = html.Div(
     [
         # empty Div to trigger javascript file for graph resizing
         html.Div(id="output-clientside"),
-        html.Div(
-            [
-                html.Div(
-                    [
-                        html.Img(
-                            src=app.get_asset_url("mit_logo.png"),
-                            id="mit-image",
-                            style={
-                                "height": "60px",
-                                "width": "auto",
-                                "margin-bottom": "25px",
-                            },
-                        )
-                    ],
-                    className="one-third column",
-                ),
+        html.Div([
+            html.Div([
                 html.Div(
                     [
                         html.Div(
                             [
-                                html.H3(
-                                    "Bar Crawl Optimizer",
-                                    style={"margin-bottom": "0px"},
-                                ),
-                                html.H5(
-                                    "Solution Overview", style={"margin-top": "0px"}
-                                ),
-                            ]
-                        )
-                    ],
-                    className="one-half column",
-                    id="title",
-                ),
-                html.Div(
-                    [
-                        html.A(
-                            html.Button("Learn More", id="learn-more-button"),
-                            href="https://plot.ly/dash/pricing/",
-                        )
-                    ],
-                    className="one-third column",
-                    id="button",
-                ),
-            ],
-            id="header",
-            className="row flex-display",
-            style={"margin-bottom": "25px"},
-        ),
-        html.Div(
-            [
-                html.Div(
-                    [html.Div([
-                        html.Div([
-                            html.P(
-                                "Select a date:",
-                                className="control_label",
-                            ),
-                            html.Div(
-                                dcc.DatePickerSingle(
-                                    id='crawl_date',
-                                    min_date_allowed=dt.datetime.today(),
-                                    max_date_allowed=dt.datetime(2020, 9, 19),
-                                    initial_visible_month=dt.datetime(2020, 8, 5),
-                                    date=str(dt.datetime.today()))
-                            ), ],
-                            className="one-third column"),
-                        html.Div([
-                            html.P("Start time", className="control_label"),
-                            dcc.Dropdown(
-                                id='start_time',
-                                options=[
-                                    {'label': '12:00pm', 'value': '12'},
-                                    {'label': '1:00pm', 'value': '13'},
-                                    {'label': '2:00pm', 'value': '14'},
-                                    {'label': '3:00pm', 'value': '15'},
-                                    {'label': '4:00pm', 'value': '16'},
-                                    {'label': '5:00pm', 'value': '17'},
-                                    {'label': '6:00pm', 'value': '18'},
-                                    {'label': '7:00pm', 'value': '19'},
-                                    {'label': '8:00pm', 'value': '20'},
-                                    {'label': '9:00pm', 'value': '21'},
-                                    {'label': '10:00pm', 'value': '22'},
-                                    {'label': '11:00pm', 'value': '23'},
-                                    {'label': '12:00am', 'value': '0'},
-                                    {'label': '1:00am', 'value': '1'},
-                                    {'label': '2:00am', 'value': '2'}
-                                ],
-                            ), ], className="one-third column"),
-                        html.Div([
-                            html.P("End time", className="control_label"),
-                            dcc.Dropdown(
-                                id='end_time',
-                                options=[
-                                    {'label': '12:00pm', 'value': '12'},
-                                    {'label': '1:00pm', 'value': '13'},
-                                    {'label': '2:00pm', 'value': '14'},
-                                    {'label': '3:00pm', 'value': '15'},
-                                    {'label': '4:00pm', 'value': '16'},
-                                    {'label': '5:00pm', 'value': '17'},
-                                    {'label': '6:00pm', 'value': '18'},
-                                    {'label': '7:00pm', 'value': '19'},
-                                    {'label': '8:00pm', 'value': '20'},
-                                    {'label': '9:00pm', 'value': '21'},
-                                    {'label': '10:00pm', 'value': '22'},
-                                    {'label': '11:00pm', 'value': '23'},
-                                    {'label': '12:00am', 'value': '0'},
-                                    {'label': '1:00am', 'value': '1'},
-                                    {'label': '2:00am', 'value': '2'},
-                                    {'label': '3:00am', 'value': '3'}
-                                ],
-                            ), ], className="one-third column"), ], className="row flex-display"),
-                        html.P("Filter by budget range:", className="control_label"),
-                        dcc.Dropdown(
-                            id="well_statuses",
-                            options=price_range_options,
-                            multi=True,
-                            value=[],
-                            className="dcc_control",
-                        ),
-                        html.Div([
-                            html.P("Number of bars", className="control_label"),
-                            html.Div(
-                                dcc.Slider(
-                                    id='num_stops',
-                                    min=0,
-                                    max=10,
-                                    value=5,
-                                    marks={
-                                        2: {'label': '2'},
-                                        4: {'label': '4'},
-                                        6: {'label': '6'},
-                                        8: {'label': '8'},
-                                        10: {'label': '10'},
-                                    }
-                                ))], className="one-half column"),
-                        html.Br(),
-                        html.Br(),
-                        html.Br(),
-                        html.P("Maximum total walking time", className="control_label"),
-                        html.Div(dcc.Input(
-                            id="max_walking_time",
-                            type='text',
-                            value=60,
-                            placeholder='Max total walking time'
-                        )),
-                        html.P("Maximum walking time between each bar", className="control_label"),
-                        html.Div(dcc.Input(
-                            id="single_walking_time",
-                            type='text',
-                            value=15,
-                            placeholder='Max walking time between each bar'
-                        )),
-                        html.P("Minimum number of reviews by bar", className="control_label"),
-                        html.Div(dcc.Input(
-                            id="min_review_ct",
-                            type='text',
-                            value=5,
-                            placeholder='Min number of reviews by bar'
-                        )),
-                        html.P("Minimum bar review (from 0 to 5)", className="control_label"),
-                        html.Div(dcc.Input(
-                            id="min_review",
-                            type='text',
-                            value=3,
-                            placeholder='Min bar review'
-                        )),
-                        html.Button('Go', id='go_button'),
-                    ],
-                    className="pretty_container six columns",
-                    id="cross-filter-options",
-                ),
-                html.Div(
-                    [html.Div(
-                        [dcc.Graph(id="histogram")],
-                        className="pretty_container nine columns",
-                    ),
-                        html.Div(
-                            [
-                                html.Div(
-                                    [html.P("Total walking time"),
-                                     #       id="walking_time_val",
-                                     #       className="mini_container",
-                                     html.Div(dcc.Input(
-                                         id="walking_time",
-                                         type='text',
-                                         value=60
-                                     )), ],
-                                    className="mini_container",
-                                ),
-                                html.Div(
-                                    [html.P("Combinations considered"),
-                                     #       id="walking_time_val",
-                                     #       className="mini_container",
-                                     html.Div(dcc.Input(
-                                         id="temp_val",
-                                         type='text',
-                                         value=60
-                                     )), ],
-                                    className="mini_container",
-                                ),
-                                html.Div(
-                                    [html.H6(id="oilText"), html.P("Average rating")],
-                                    id="oil",
-                                    className="mini_container",
-                                ),
-                                html.Div(
-                                    [html.H6(id="waterText"), html.P("Estimated cost")],
-                                    id="water",
-                                    className="mini_container",
-                                ),
+                                html.Img(
+                                    src=app.get_asset_url("mit_logo.png"),
+                                    id="mit-image",
+                                    style={
+                                        "height": "60px",
+                                        "width": "auto",
+                                        "margin-bottom": "25px",
+                                    }, className="plotly-logo"
+                                )
                             ],
-                            id="info-container",
-                            className="row container-display",
+                            className="mobile_forms",
+                        ),
+                        html.Div(
+                            [
+                                html.Div(
+                                    [
+                                        html.Div([
+                                            html.H1(
+                                                "Bar Crawl Optimizer",
+                                                style={"margin-bottom": "0px"},
+                                            ), ], className='seven columns'),
+                                        html.Div([
+                                            html.A(
+                                                html.Button("Learn More", id="learn-more-button"),
+
+                                                style={"margin-left": "0px", "margin-right": "0px"},
+                                                href="",
+                                            )
+                                        ], className='demo_container')
+                                    ]
+                                )
+                            ],
+                            className="mobile_forms",
+                            id="title",
+                        ),
+                    ],
+                    id="header",
+                    className="mobile_forms",
+                    style={"margin-bottom": "25px"},
+                ), html.Div(
+                    [
+                        html.Div(
+                            [html.Div([
+                                html.Div([
+                                    html.Label(
+                                        "Select a date:"
+                                    ),
+                                    html.Div(
+                                        dcc.DatePickerSingle(
+                                            id='crawl_date',
+                                            min_date_allowed=dt.datetime.today(),
+                                            max_date_allowed=dt.datetime(2020, 9, 19),
+                                            initial_visible_month=dt.datetime(2020, 8, 5),
+                                            date=str(dt.datetime.today()))
+                                    ), ], className="eight columns"),
+                                html.Div([
+                                    html.Div([
+                                        html.Label("Start time"),
+                                        dcc.Dropdown(
+                                            id='start_time',
+                                            options=[
+                                                {'label': '12:00pm', 'value': '12'},
+                                                {'label': '1:00pm', 'value': '13'},
+                                                {'label': '2:00pm', 'value': '14'},
+                                                {'label': '3:00pm', 'value': '15'},
+                                                {'label': '4:00pm', 'value': '16'},
+                                                {'label': '5:00pm', 'value': '17'},
+                                                {'label': '6:00pm', 'value': '18'},
+                                                {'label': '7:00pm', 'value': '19'},
+                                                {'label': '8:00pm', 'value': '20'},
+                                                {'label': '9:00pm', 'value': '21'},
+                                                {'label': '10:00pm', 'value': '22'},
+                                                {'label': '11:00pm', 'value': '23'},
+                                                {'label': '12:00am', 'value': '0'},
+                                                {'label': '1:00am', 'value': '1'},
+                                                {'label': '2:00am', 'value': '2'}
+                                            ],
+                                        ), ], className="six columns"),
+                                    html.Div([
+                                        html.Label("End time"),
+                                        dcc.Dropdown(
+                                            id='end_time',
+                                            options=[
+                                                {'label': '12:00pm', 'value': '12'},
+                                                {'label': '1:00pm', 'value': '13'},
+                                                {'label': '2:00pm', 'value': '14'},
+                                                {'label': '3:00pm', 'value': '15'},
+                                                {'label': '4:00pm', 'value': '16'},
+                                                {'label': '5:00pm', 'value': '17'},
+                                                {'label': '6:00pm', 'value': '18'},
+                                                {'label': '7:00pm', 'value': '19'},
+                                                {'label': '8:00pm', 'value': '20'},
+                                                {'label': '9:00pm', 'value': '21'},
+                                                {'label': '10:00pm', 'value': '22'},
+                                                {'label': '11:00pm', 'value': '23'},
+                                                {'label': '12:00am', 'value': '0'},
+                                                {'label': '1:00am', 'value': '1'},
+                                                {'label': '2:00am', 'value': '2'},
+                                                {'label': '3:00am', 'value': '3'}
+                                            ],
+                                        ), ], className="six columns"),
+                                ], className="eight columns"),
+                                html.Div([
+                                    html.Label("Filter by budget range:"),
+                                    dcc.Dropdown(
+                                        id="well_statuses",
+                                        options=price_range_options,
+                                        multi=True,
+                                        value=[],
+                                        className="dcc_control",
+                                    ), ], className="eight columns"),
+                                html.Div([
+                                    html.Label("Number of bars"),
+                                    html.Div(
+                                        dcc.Slider(
+                                            id='num_stops',
+                                            min=0,
+                                            max=10,
+                                            value=5,
+                                            marks={
+                                                2: {'label': '2'},
+                                                4: {'label': '4'},
+                                                6: {'label': '6'},
+                                                8: {'label': '8'},
+                                                10: {'label': '10'},
+                                            }
+                                        ))], className="eight columns"),
+                                html.Div([
+                                    html.Div([
+                                        html.Label("Max total walking time"),
+                                        html.Div(dcc.Input(
+                                            id="max_walking_time",
+                                            type='text',
+                                            value=60,
+                                            placeholder='Max total walking time'
+                                        )), ], className="six columns"),
+                                    html.Div([
+                                        html.Label("Max walking time between each bar"),
+                                        html.Div(dcc.Input(
+                                            id="single_walking_time",
+                                            type='text',
+                                            value=15,
+                                            placeholder='Max walking time between each bar'
+                                        )), ], className="six columns"),
+                                ], className="eleven columns"),
+                                html.Div([
+                                    html.Div([
+                                        html.Label("Min number of reviews by bar"),
+                                        html.Div(dcc.Input(
+                                            id="min_review_ct",
+                                            type='text',
+                                            value=5,
+                                            placeholder='Min number of reviews by bar'
+                                        )), ], className="six columns"),
+                                    html.Div([
+                                        html.Label("Min bar review (from 0 to 5)"),
+                                        html.Div(dcc.Input(
+                                            id="min_review",
+                                            type='text',
+                                            value=3,
+                                            placeholder='Min bar review'
+                                        )), ], className="six columns"),
+                                ], className="eleven columns"),
+                                html.Div([
+                                    html.Br(),
+                                    html.Button('Go', id='go_button'),
+                                ], className="eight columns")
+                            ], className="mobile_forms"),
+                            ],
+                            className="mobile_forms",
+                            id="cross-filter-options",
                         ),
 
-                        #  html.Div(
-                        #      [dcc.Graph(id="count_graph")],
-                        #      id="countGraphContainer",
-                        #      className="pretty_container",
-                        #  ),
                     ],
                     id="right-column",
-                    className="eight columns",
+                    className="mobile_forms",
                 ),
-            ],
-            className="row flex-display",
-        ),
-        html.Div(
-            [
-                html.Div(
-                    [dcc.Graph(id="satellite_graph")],
-                    className="pretty_container seven columns",
+            ], className="four columns instruction",
+            ),
+            html.Div(
+                [html.Div(
+                    [dcc.Graph(id="histogram")],
+                    className="pretty_container nine columns",
                 ),
-                html.Div(
-                    [dcc.Graph(id="individual_graph")],
-                    className="pretty_container five columns",
-                ),
-            ],
-            className="row flex-display",
-        ),
-        html.Div(
-            [
-                # html.Div(
-                #     [dcc.Graph(id="pie_graph")],
-                #     className="pretty_container seven columns",
-                # ),
-                #  html.Div(
-                #      [dcc.Graph(id="histogram")],
-                #      className="pretty_container five columns",
-                #  ),
-            ],
-            className="row flex-display",
-        ),
+                    html.Div(
+                        [
+                            html.Div(
+                                [html.Label("Total walking time"),
+                                 #       id="walking_time_val",
+                                 #       className="mini_container",
+                                 html.Div(dcc.Input(
+                                     id="walking_time",
+                                     type='text',
+                                     value=60
+                                 )), ],
+                                className="mini_container",
+                            ),
+                            html.Div(
+                                [html.Label("Combinations considered"),
+                                 #       id="walking_time_val",
+                                 #       className="mini_container",
+                                 html.Div(dcc.Input(
+                                     id="temp_val",
+                                     type='text',
+                                     value=60
+                                 )), ],
+                                className="mini_container",
+                            ),
+                            html.Div(
+                                [html.H6(id="oilText"), html.Label("Average rating")],
+                                id="oil",
+                                className="mini_container",
+                            ),
+                            html.Div(
+                                [html.H6(id="waterText"), html.Label("Estimated cost")],
+                                id="water",
+                                className="mini_container",
+                            ),
+                        ],
+                        id="info-container",
+                        className="row container-display",
+                    ),
+                    html.Div(
+                        [
+                            html.Div(
+                                [dcc.Graph(id="satellite_graph")],
+                                className="pretty_container seven columns",
+                            ),
+                            html.Div(
+                                [dcc.Graph(id="individual_graph")],
+                                className="pretty_container five columns",
+                            ),
+                        ],
+                        className="row flex-display",
+                    )], className="eight columns result",
+            )],
+            className="row twelve columns", )
     ],
     id="mainContainer",
     style={"display": "flex", "flex-direction": "column"},
@@ -410,7 +401,7 @@ def make_main_figure(walking_time):
                  & (~df['categories'].str.contains('Sushi Bars')
                     & ~df['categories'].str.contains('Juice Bars'))]
     dff = df_bars.loc[lambda f: f['city'] == 'Toronto'][:10]
-    dff['rounded_review'] = round(dff['stars'],0)
+    dff['rounded_review'] = round(dff['stars'], 0)
     traces = []
     for name, dfff in dff.groupby("name"):
         trace = dict(
@@ -444,11 +435,12 @@ def make_main_figure(walking_time):
     figure = dict(data=traces, layout=layout)
     return figure
 
+
 @app.callback(Output("temp_val", "value"),
               [Input("go_button", "n_clicks")],
               [State("num_stops", "value")])
 def filter_dataframe(go, num_stops):
-    #TODO: Call model from here
+    # TODO: Call model from here
     return num_stops
 
 
