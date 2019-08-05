@@ -3,6 +3,7 @@
   <component name="ChangeListManager">
     <list default="true" id="afb6af0f-37e0-416b-9818-27d6553f7846" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/app.py" beforeDir="false" afterPath="$PROJECT_DIR$/app.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/styles.css" beforeDir="false" afterPath="$PROJECT_DIR$/assets/styles.css" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/~$am 1 Final Project Proposal v09.docx" beforeDir="false" afterPath="$PROJECT_DIR$/~$am 1 Final Project Proposal v09.docx" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -16,12 +17,11 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/app.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="374">
-              <caret line="333" column="50" selection-start-line="333" selection-start-column="50" selection-end-line="333" selection-end-column="50" />
+            <state relative-caret-position="272">
+              <caret line="139" column="45" selection-start-line="139" selection-start-column="45" selection-end-line="139" selection-end-column="45" />
               <folding>
                 <element signature="e#28#41#0" expanded="true" />
                 <element signature="e#2193#2690#0" />
-                <element signature="e#8249#8712#0" />
                 <element signature="e#8975#9858#0" />
               </folding>
             </state>
@@ -31,8 +31,29 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/assets/styles.css">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="168">
-              <caret line="1179" column="23" lean-forward="true" selection-start-line="1179" selection-start-column="23" selection-end-line="1179" selection-end-column="23" />
+            <state relative-caret-position="220">
+              <caret line="154" column="4" selection-start-line="154" selection-start-column="4" selection-end-line="154" selection-end-column="4" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/assets/s1.css">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="220">
+              <caret line="21" column="72" selection-start-line="21" selection-start-column="72" selection-end-line="21" selection-end-column="72" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/README.md">
+          <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
+            <state split_layout="SPLIT">
+              <first_editor relative-caret-position="34">
+                <caret line="2" column="27" selection-start-line="2" selection-start-column="27" selection-end-line="2" selection-end-column="27" />
+              </first_editor>
+              <second_editor />
             </state>
           </provider>
         </entry>
@@ -40,8 +61,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/app2.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="170">
-              <caret line="65" column="1" lean-forward="true" selection-start-line="65" selection-start-column="1" selection-end-line="65" selection-end-column="1" />
+            <state relative-caret-position="221">
+              <caret line="240" column="47" selection-start-line="240" selection-start-column="31" selection-end-line="240" selection-end-column="47" />
             </state>
           </provider>
         </entry>
@@ -49,11 +70,6 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/business.csv">
           <provider selected="true" editor-type-id="LargeFileEditor" />
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/models/models.py">
-          <provider selected="true" editor-type-id="text-editor" />
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
@@ -99,36 +115,36 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>color</find>
-      <find>pretty_</find>
-      <find>column</find>
-      <find>flex</find>
-      <find>html.p</find>
-      <find>number of bars</find>
-      <find>filter</find>
-      <find>br</find>
-      <find>start tim</find>
-      <find>stit</find>
-      <find>tab</find>
-      <find>walking_time</find>
-      <find>walking_</find>
-      <find>update_store</find>
-      <find>go_but</find>
-      <find>dcc.store</find>
-      <find>total walking</find>
-      <find>satell</find>
-      <find>satelli</find>
-      <find>satellite_graph</find>
-      <find>histogram</find>
-      <find>GO</find>
-      <find>``</find>
-      <find>go_butt</find>
-      <find>apply</find>
       <find>details_button</find>
       <find>go</find>
-      <find>temp_val</find>
       <find>go_button</find>
       <find>satellite</find>
+      <find>html.p</find>
+      <find>venv</find>
+      <find>co</find>
+      <find>temp-val</find>
+      <find>oil</find>
+      <find>temp_val</find>
+      <find>temp</find>
+      <find>avg_rating</find>
+      <find>avg_</find>
+      <find>pretty_</find>
+      <find>pretty_container</find>
+      <find>more</find>
+      <find>html</find>
+      <find>canvas</find>
+      <find>label</find>
+      <find>img</find>
+      <find>combin</find>
+      <find>width</find>
+      <find>height</find>
+      <find>two co</find>
+      <find>result</find>
+      <find>layout</find>
+      <find>columns</find>
+      <find>figure</find>
+      <find>flex</find>
+      <find>date</find>
     </findStrings>
     <replaceStrings>
       <replace>Rating</replace>
@@ -148,6 +164,7 @@
         <option value="$PROJECT_DIR$/processing/business_processing.py" />
         <option value="$PROJECT_DIR$/models/filtering.py" />
         <option value="$PROJECT_DIR$/README.md" />
+        <option value="$PROJECT_DIR$/assets/s1.css" />
         <option value="$PROJECT_DIR$/assets/styles.css" />
         <option value="$PROJECT_DIR$/app.py" />
       </list>
@@ -322,41 +339,47 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/business.csv">
+      <provider selected="true" editor-type-id="LargeFileEditor" />
+    </entry>
     <entry file="file://$PROJECT_DIR$/README.md">
       <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
         <state split_layout="SPLIT">
-          <first_editor relative-caret-position="115">
-            <caret line="10" selection-start-line="10" selection-end-line="10" selection-end-column="21" />
+          <first_editor relative-caret-position="34">
+            <caret line="2" column="27" selection-start-line="2" selection-start-column="27" selection-end-line="2" selection-end-column="27" />
           </first_editor>
           <second_editor />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/business.csv">
-      <provider selected="true" editor-type-id="LargeFileEditor" />
-    </entry>
     <entry file="file://$PROJECT_DIR$/app2.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="170">
-          <caret line="65" column="1" lean-forward="true" selection-start-line="65" selection-start-column="1" selection-end-line="65" selection-end-column="1" />
+        <state relative-caret-position="221">
+          <caret line="240" column="47" selection-start-line="240" selection-start-column="31" selection-end-line="240" selection-end-column="47" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/assets/s1.css">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="220">
+          <caret line="21" column="72" selection-start-line="21" selection-start-column="72" selection-end-line="21" selection-end-column="72" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/assets/styles.css">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="168">
-          <caret line="1179" column="23" lean-forward="true" selection-start-line="1179" selection-start-column="23" selection-end-line="1179" selection-end-column="23" />
+        <state relative-caret-position="220">
+          <caret line="154" column="4" selection-start-line="154" selection-start-column="4" selection-end-line="154" selection-end-column="4" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/app.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="374">
-          <caret line="333" column="50" selection-start-line="333" selection-start-column="50" selection-end-line="333" selection-end-column="50" />
+        <state relative-caret-position="272">
+          <caret line="139" column="45" selection-start-line="139" selection-start-column="45" selection-end-line="139" selection-end-column="45" />
           <folding>
             <element signature="e#28#41#0" expanded="true" />
             <element signature="e#2193#2690#0" />
-            <element signature="e#8249#8712#0" />
             <element signature="e#8975#9858#0" />
           </folding>
         </state>

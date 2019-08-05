@@ -52,7 +52,7 @@ points = pickle.load(open(DATA_PATH.joinpath("points.pkl"), "rb"))
 mapbox_access_token = "pk.eyJ1IjoiamFja2x1byIsImEiOiJjajNlcnh3MzEwMHZtMzNueGw3NWw5ZXF5In0.fk8k06T96Ml9CLGgKmk81w"
 
 layout = dict(
-    autosize=True,
+    autosize=False,
     automargin=True,
     margin=dict(l=30, r=30, b=20, t=40),
     hovermode="closest",
@@ -105,7 +105,7 @@ app.layout = html.Div(
                                                 html.Button("Learn More", id="learn-more-button"),
 
                                                 style={"margin-left": "0px", "margin-right": "0px"},
-                                                href="",
+                                                href="https://en.wikipedia.org/wiki/Pub_crawl",
                                             )
                                         ], className='demo_container')
                                     ]
@@ -123,18 +123,25 @@ app.layout = html.Div(
                         html.Div(
                             [html.Div([
                                 html.Div([
-                                    html.Label(
-                                        "Select a date:"
-                                    ),
-                                    html.Div(
+                                    html.Div([
+                                        html.Label(
+                                            "Select a date:"
+                                        ),
+                                    ], className="eight columns", hidden=True),
+                                ], className="mobile_forms", hidden=True),
+                                html.Div([
+                                    html.Div([
+                                        html.Label(
+                                            "Select a date:"
+                                        ),
                                         dcc.DatePickerSingle(
                                             id='crawl_date',
                                             min_date_allowed=dt.datetime.today(),
-                                            max_date_allowed=dt.datetime(2020, 9, 19),
-                                            initial_visible_month=dt.datetime(2020, 8, 5),
+                                            #with_portal=True,
+                                            # max_date_allowed=dt.datetime(2020, 9, 19),
+                                            # initial_visible_month=dt.datetime(2020, 8, 5),
                                             date=str(dt.datetime.today()))
-                                    ), ], className="eight columns"),
-                                html.Div([
+                                    ], className="eight columns"),
                                     html.Div([
                                         html.Label("Start time"),
                                         dcc.Dropdown(
@@ -282,10 +289,7 @@ app.layout = html.Div(
                     ),
                     html.Div(
                         id="tabs-content-example",
-                        className="canvas",
-                        style={"text-align": "left", "margin": "auto"},
-                    ),
-
+                        className="canvas"),
                     dcc.Store(id="memory-stitch"),
                 ], className="eight columns result",
             )],
@@ -313,25 +317,19 @@ def fill_tab(tab):
                     html.Button('Calculate routes', id='go_button', className="button_submit"),
                 ]),
                     html.Div([
-                        dcc.Graph(id="histogram")], )],
+                        dcc.Graph(id="histogram")])],
                 className="row twelve columns")]
     elif tab == "tab-three":
         return [html.Div(
             [html.Div([
                 html.Br(),
-                html.Button('Show selected route', id='details_button', className="button_submit"),
+                html.Button('Show route', id='details_button', className="button_submit"),
             ]),
-                html.Div([
                 html.Div(
-                    [html.Label("Combinations considered"),
-                     html.Div(id="temp_val") ],
-                    className="mini_container",
-                ),
-                html.Div(
-                    [html.H6(id="oilText"), html.Label("Average rating")],
-                    id="oil",
-                    className="mini_container",
-                ),], className='row twelve columns')
+                    [html.Div(html.H1(id='combinations'), className='pretty_container six columns'),
+                     html.Div(
+                         html.H1(id='avg_rating'), className='pretty_container six columns')]
+                    , className='row twelve columns')
             ],
             id="info-container",
             className="row container-display",
@@ -347,10 +345,20 @@ def fill_tab(tab):
                         className="pretty_container five columns",
                     ),
                 ],
-                className="row flex-display",
+                className="row eight columns",
             )]
 
-    return [html.P("Welcome to the bar crawl simulator. Please select your desired settings on the left and press GO.")]
+    return [
+        html.Label("Welcome to the bar crawl simulator. Please select your desired settings on the left and press GO."),
+        html.Img(
+            src=app.get_asset_url("giphy (2).gif"),
+            id="mit-image",
+            style={
+                "height": "400px",
+                "width": "auto",
+                "margin-bottom": "25px",
+            }, className="plotly-logo"
+        )]
 
 
 # Helper functions
@@ -469,12 +477,20 @@ def make_main_figure(walking_time, go_button):
     return figure
 
 
-@app.callback(Output("temp_val", "value"),
+@app.callback(Output("combinations", "children"),
               [Input("details_button", "n_clicks")],
               [State("num_stops", "value")])
 def filter_dataframe(go, num_stops):
     # TODO: Call model from here
-    return num_stops
+    return "Combinations considered: {}".format(num_stops)
+
+
+@app.callback(Output("avg_rating", "children"),
+              [Input("details_button", "n_clicks")],
+              [State("num_stops", "value")])
+def avg_rating(go, num_stops):
+    # TODO: Call model from here
+    return "Average rating: {}".format(num_stops)
 
 
 # Main graph -> individual graph
