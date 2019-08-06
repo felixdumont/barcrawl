@@ -2,7 +2,7 @@
 
 ### Running the app locally
 
-First create a virtual environment with conda or venv inside a temp folder, then activate it.
+First create a virtual environment with conda or venv inside the code folder, then activate it.
 
 ```
 virtualenv venv

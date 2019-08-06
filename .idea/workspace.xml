@@ -3,8 +3,9 @@
   <component name="ChangeListManager">
     <list default="true" id="afb6af0f-37e0-416b-9818-27d6553f7846" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Untitled1.ipynb" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/data/wellspublic.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app.py" beforeDir="false" afterPath="$PROJECT_DIR$/app.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/models/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/models/models.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/~$am 1 Final Project Proposal v09.docx" beforeDir="false" afterPath="$PROJECT_DIR$/~$am 1 Final Project Proposal v09.docx" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -18,10 +19,10 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/app.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="221">
-              <caret line="193" column="48" selection-start-line="193" selection-start-column="48" selection-end-line="193" selection-end-column="48" />
+            <state relative-caret-position="510">
+              <caret line="30" column="6" lean-forward="true" selection-start-line="30" selection-start-column="6" selection-end-line="30" selection-end-column="6" />
               <folding>
-                <element signature="e#28#41#0" expanded="true" />
+                <element signature="e#56#69#0" expanded="true" />
                 <element signature="e#8975#9858#0" />
               </folding>
             </state>
@@ -49,8 +50,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/models/models.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="493">
-              <caret line="29" selection-start-line="29" selection-end-line="29" />
+            <state relative-caret-position="17">
+              <caret line="9" lean-forward="true" selection-start-line="9" selection-end-line="9" />
               <folding>
                 <element signature="e#0#51#0" expanded="true" />
               </folding>
@@ -58,21 +59,21 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/controls.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="340">
-              <caret line="20" column="24" lean-forward="true" selection-start-line="20" selection-start-column="24" selection-end-line="20" selection-end-column="24" />
+            <state relative-caret-position="170">
+              <caret line="10" column="17" lean-forward="true" selection-start-line="10" selection-start-column="17" selection-end-line="11" selection-end-column="17" />
             </state>
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/README.md">
           <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
             <state split_layout="SPLIT">
-              <first_editor relative-caret-position="34">
-                <caret line="2" column="27" selection-start-line="2" selection-start-column="27" selection-end-line="2" selection-end-column="27" />
+              <first_editor relative-caret-position="68">
+                <caret line="4" column="69" selection-start-line="4" selection-start-column="69" selection-end-line="4" selection-end-column="69" />
               </first_editor>
               <second_editor />
             </state>
@@ -82,8 +83,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/models/processing.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="170">
-              <caret line="10" column="8" lean-forward="true" selection-start-line="10" selection-start-column="8" selection-end-line="10" selection-end-column="8" />
+            <state relative-caret-position="85">
+              <caret line="5" column="7" lean-forward="true" selection-start-line="5" selection-start-column="7" selection-end-line="5" selection-end-column="7" />
             </state>
           </provider>
         </entry>
@@ -91,8 +92,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/preprocessing/business_processing.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state>
-              <caret lean-forward="true" />
+            <state relative-caret-position="646">
+              <caret line="38" lean-forward="true" selection-start-line="38" selection-end-line="38" />
             </state>
           </provider>
         </entry>
@@ -131,7 +132,6 @@
       <find>flex</find>
       <find>date</find>
       <find>plotly</find>
-      <find>align</find>
       <find>mit</find>
       <find>max_walking_time</find>
       <find>read_csv</find>
@@ -142,6 +142,7 @@
       <find>produce_individual</find>
       <find>produ</find>
       <find>well</find>
+      <find>align</find>
       <find>wellsp</find>
     </findStrings>
     <replaceStrings>
@@ -160,19 +161,19 @@
         <option value="$PROJECT_DIR$/controls.py" />
         <option value="$PROJECT_DIR$/processing/business_utils.py" />
         <option value="$PROJECT_DIR$/processing/business_processing.py" />
-        <option value="$PROJECT_DIR$/README.md" />
         <option value="$PROJECT_DIR$/assets/s1.css" />
         <option value="$PROJECT_DIR$/assets/styles.css" />
         <option value="$PROJECT_DIR$/models/filtering.py" />
         <option value="$PROJECT_DIR$/models/processing.py" />
-        <option value="$PROJECT_DIR$/models/models.py" />
         <option value="$PROJECT_DIR$/app.py" />
+        <option value="$PROJECT_DIR$/models/models.py" />
+        <option value="$PROJECT_DIR$/README.md" />
       </list>
     </option>
   </component>
   <component name="ProjectFrameBounds" extendedState="6">
-    <option name="x" value="100" />
-    <option name="y" value="20" />
+    <option name="x" value="-8" />
+    <option name="y" value="-5" />
     <option name="width" value="1400" />
     <option name="height" value="820" />
   </component>
@@ -189,21 +190,6 @@
               <item name="barcrawl" type="b2602c69:ProjectViewProjectNode" />
               <item name="barcrawl" type="462c0819:PsiDirectoryNode" />
             </path>
-            <path>
-              <item name="barcrawl" type="b2602c69:ProjectViewProjectNode" />
-              <item name="barcrawl" type="462c0819:PsiDirectoryNode" />
-              <item name="data" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="barcrawl" type="b2602c69:ProjectViewProjectNode" />
-              <item name="barcrawl" type="462c0819:PsiDirectoryNode" />
-              <item name="models" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="barcrawl" type="b2602c69:ProjectViewProjectNode" />
-              <item name="barcrawl" type="462c0819:PsiDirectoryNode" />
-              <item name="preprocessing" type="462c0819:PsiDirectoryNode" />
-            </path>
           </expand>
           <select />
         </subPane>
@@ -213,6 +199,7 @@
   <component name="PropertiesComponent">
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
   </component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
@@ -301,26 +288,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/data/checkin.json">
-      <provider selected="true" editor-type-id="LargeFileEditor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/data/review.json">
-      <provider selected="true" editor-type-id="LargeFileEditor" />
-    </entry>
     <entry file="file://$PROJECT_DIR$/processing/business_utils.py" />
     <entry file="file://$PROJECT_DIR$/processing/business_processing.py" />
     <entry file="file://$PROJECT_DIR$/business.csv">
       <provider selected="true" editor-type-id="LargeFileEditor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/README.md">
-      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
-        <state split_layout="SPLIT">
-          <first_editor relative-caret-position="34">
-            <caret line="2" column="27" selection-start-line="2" selection-start-column="27" selection-end-line="2" selection-end-column="27" />
-          </first_editor>
-          <second_editor />
-        </state>
-      </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/app2.py">
       <provider selected="true" editor-type-id="text-editor">
@@ -336,10 +307,71 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/data/wellspublic.csv">
+      <provider selected="true" editor-type-id="LargeFileEditor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/controls.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="170">
+          <caret line="10" column="17" lean-forward="true" selection-start-line="10" selection-start-column="17" selection-end-line="11" selection-end-column="17" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/assets/styles.css">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="220">
           <caret line="177" column="12" selection-start-line="177" selection-start-column="7" selection-end-line="177" selection-end-column="12" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/assets/giphy.gif">
+      <provider selected="true" editor-type-id="images" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/assets/mit_logo.png">
+      <provider selected="true" editor-type-id="images" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/data/business.csv">
+      <provider selected="true" editor-type-id="LargeFileEditor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/data/checkin.json">
+      <provider selected="true" editor-type-id="LargeFileEditor">
+        <state relative-caret-position="51">
+          <caret line="3" column="66" lean-forward="true" selection-start-line="3" selection-start-column="66" selection-end-line="3" selection-end-column="66" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/data/photo.json">
+      <provider selected="true" editor-type-id="LargeFileEditor">
+        <state relative-caret-position="340">
+          <caret line="60" column="32" selection-start-line="60" selection-start-column="32" selection-end-line="60" selection-end-column="32" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/data/review.json">
+      <provider selected="true" editor-type-id="LargeFileEditor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/data/tip.json">
+      <provider selected="true" editor-type-id="LargeFileEditor">
+        <state relative-caret-position="102">
+          <caret line="6" column="93" selection-start-line="6" selection-start-column="88" selection-end-line="6" selection-end-column="93" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/data/user.json">
+      <provider selected="true" editor-type-id="LargeFileEditor">
+        <state relative-caret-position="153">
+          <caret column="1344" selection-start-column="1344" selection-end-column="1344" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/app.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="510">
+          <caret line="30" column="6" lean-forward="true" selection-start-line="30" selection-start-column="6" selection-end-line="30" selection-end-column="6" />
+          <folding>
+            <element signature="e#56#69#0" expanded="true" />
+            <element signature="e#8975#9858#0" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -348,46 +380,35 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/preprocessing/business_processing.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state>
-          <caret lean-forward="true" />
+        <state relative-caret-position="646">
+          <caret line="38" lean-forward="true" selection-start-line="38" selection-end-line="38" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/models/processing.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="85">
+          <caret line="5" column="7" lean-forward="true" selection-start-line="5" selection-start-column="7" selection-end-line="5" selection-end-column="7" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/models/models.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="493">
-          <caret line="29" selection-start-line="29" selection-end-line="29" />
+        <state relative-caret-position="17">
+          <caret line="9" lean-forward="true" selection-start-line="9" selection-end-line="9" />
           <folding>
             <element signature="e#0#51#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/models/processing.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="170">
-          <caret line="10" column="8" lean-forward="true" selection-start-line="10" selection-start-column="8" selection-end-line="10" selection-end-column="8" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/app.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="221">
-          <caret line="193" column="48" selection-start-line="193" selection-start-column="48" selection-end-line="193" selection-end-column="48" />
-          <folding>
-            <element signature="e#28#41#0" expanded="true" />
-            <element signature="e#8975#9858#0" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/data/wellspublic.csv">
-      <provider selected="true" editor-type-id="LargeFileEditor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/controls.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="340">
-          <caret line="20" column="24" lean-forward="true" selection-start-line="20" selection-start-column="24" selection-end-line="20" selection-end-column="24" />
+    <entry file="file://$PROJECT_DIR$/README.md">
+      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
+        <state split_layout="SPLIT">
+          <first_editor relative-caret-position="68">
+            <caret line="4" column="69" selection-start-line="4" selection-start-column="69" selection-end-line="4" selection-end-column="69" />
+          </first_editor>
+          <second_editor />
         </state>
       </provider>
     </entry>
