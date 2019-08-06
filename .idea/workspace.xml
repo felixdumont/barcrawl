@@ -2,13 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="afb6af0f-37e0-416b-9818-27d6553f7846" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app.py" beforeDir="false" afterPath="$PROJECT_DIR$/app.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/data/Oil_and_Gas_Annual_Production__1985_-_2000.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/data/Oil_and_Gas_Annual_Production__Beginning_2001.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/data/OilandGasMetadata.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/models/filtering.py" beforeDir="false" afterPath="$PROJECT_DIR$/models/processing.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/models/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/models/models.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/~$am 1 Final Project Proposal v09.docx" beforeDir="false" afterPath="$PROJECT_DIR$/~$am 1 Final Project Proposal v09.docx" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -19,11 +13,11 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/app.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="221">
-              <caret line="40" column="16" selection-start-line="40" selection-start-column="8" selection-end-line="40" selection-end-column="16" />
+            <state relative-caret-position="563">
+              <caret line="556" lean-forward="true" selection-start-line="556" selection-end-line="556" />
               <folding>
                 <element signature="e#28#41#0" expanded="true" />
                 <element signature="e#8975#9858#0" />
@@ -62,13 +56,18 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/controls.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="340">
               <caret line="20" column="24" lean-forward="true" selection-start-line="20" selection-start-column="24" selection-end-line="20" selection-end-column="24" />
             </state>
           </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/data/wellspublic.csv">
+          <provider selected="true" editor-type-id="LargeFileEditor" />
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
@@ -81,11 +80,6 @@
               <second_editor />
             </state>
           </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/business.csv">
-          <provider selected="true" editor-type-id="LargeFileEditor" />
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
@@ -122,13 +116,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>venv</find>
-      <find>co</find>
-      <find>temp-val</find>
-      <find>oil</find>
-      <find>temp_val</find>
-      <find>temp</find>
-      <find>avg_rating</find>
       <find>avg_</find>
       <find>pretty_</find>
       <find>pretty_container</find>
@@ -152,6 +139,13 @@
       <find>mit</find>
       <find>max_walking_time</find>
       <find>read_csv</find>
+      <find>df</find>
+      <find>trim</find>
+      <find>dataset</find>
+      <find>well_type_options</find>
+      <find>produce_individual</find>
+      <find>produ</find>
+      <find>well</find>
     </findStrings>
     <replaceStrings>
       <replace>Rating</replace>
@@ -172,10 +166,10 @@
         <option value="$PROJECT_DIR$/README.md" />
         <option value="$PROJECT_DIR$/assets/s1.css" />
         <option value="$PROJECT_DIR$/assets/styles.css" />
-        <option value="$PROJECT_DIR$/app.py" />
         <option value="$PROJECT_DIR$/models/filtering.py" />
         <option value="$PROJECT_DIR$/models/processing.py" />
         <option value="$PROJECT_DIR$/models/models.py" />
+        <option value="$PROJECT_DIR$/app.py" />
       </list>
     </option>
   </component>
@@ -299,9 +293,6 @@
     </layout-to-restore>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/data/wellspublic.csv">
-      <provider selected="true" editor-type-id="LargeFileEditor" />
-    </entry>
     <entry file="file://$PROJECT_DIR$/processing/json_to_csv.py" />
     <entry file="file://$PROJECT_DIR$/data/business.json">
       <provider selected="true" editor-type-id="LargeFileEditor" />
@@ -382,21 +373,24 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/app.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="221">
-          <caret line="40" column="16" selection-start-line="40" selection-start-column="8" selection-end-line="40" selection-end-column="16" />
-          <folding>
-            <element signature="e#28#41#0" expanded="true" />
-            <element signature="e#8975#9858#0" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/controls.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="340">
           <caret line="20" column="24" lean-forward="true" selection-start-line="20" selection-start-column="24" selection-end-line="20" selection-end-column="24" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/data/wellspublic.csv">
+      <provider selected="true" editor-type-id="LargeFileEditor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/app.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="563">
+          <caret line="556" lean-forward="true" selection-start-line="556" selection-end-line="556" />
+          <folding>
+            <element signature="e#28#41#0" expanded="true" />
+            <element signature="e#8975#9858#0" />
+          </folding>
         </state>
       </provider>
     </entry>

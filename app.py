@@ -32,20 +32,6 @@ price_range_options = [
     {"label": price_range, "value": price_range}
     for price_range in ['$', '$$', '$$$', '$$$$', '$$$$$']]
 
-well_type_options = [
-    {"label": str(NEIGHBORHOODS[well_type]), "value": str(well_type)}
-    for well_type in NEIGHBORHOODS
-]
-
-# Load data
-df = pd.read_csv(DATA_PATH.joinpath("wellspublic.csv"), low_memory=False)
-df["Date_Well_Completed"] = pd.to_datetime(df["Date_Well_Completed"])
-df = df[df["Date_Well_Completed"] > dt.datetime(1960, 1, 1)]
-
-trim = df[["API_WellNo", "Well_Type", "Well_Name"]]
-trim.index = trim["API_WellNo"]
-dataset = trim.to_dict(orient="index")
-
 points = pickle.load(open(DATA_PATH.joinpath("points.pkl"), "rb"))
 
 # Create global chart template
@@ -382,66 +368,6 @@ def human_format(num):
     return mantissa + ["", "K", "M", "G", "T", "P"][magnitude]
 
 
-def produce_individual(api_well_num):
-    try:
-        points[api_well_num]
-    except:
-        return None, None, None, None
-
-    index = list(
-        range(min(points[api_well_num].keys()), max(points[api_well_num].keys()) + 1)
-    )
-    gas = []
-    oil = []
-    water = []
-
-    for year in index:
-        try:
-            gas.append(points[api_well_num][year]["Rating, stars"])
-        except:
-            gas.append(0)
-        try:
-            oil.append(points[api_well_num][year]["Price, $"])
-        except:
-            oil.append(0)
-        try:
-            water.append(points[api_well_num][year]["Distance walked, feet"])
-        except:
-            water.append(0)
-
-    return index, gas, oil, water
-
-
-def produce_aggregate(selected, hour_slider):
-    index = list(range(max(hour_slider[0], 1985), 2016))
-    gas = []
-    oil = []
-    water = []
-
-    for year in index:
-        count_gas = 0
-        count_oil = 0
-        count_water = 0
-        for api_well_num in selected:
-            try:
-                count_gas += points[api_well_num][year]["Rating, stars"]
-            except:
-                pass
-            try:
-                count_oil += points[api_well_num][year]["Price, $"]
-            except:
-                pass
-            try:
-                count_water += points[api_well_num][year]["Distance walked, feet"]
-            except:
-                pass
-        gas.append(count_gas)
-        oil.append(count_oil)
-        water.append(count_water)
-
-    return index, gas, oil, water
-
-
 # Selectors -> main graph
 @app.callback(
     Output("satellite_graph", "figure"),
@@ -507,69 +433,6 @@ def filter_dataframe(go, num_stops):
 def avg_rating(go, num_stops):
     # TODO: Call model from here
     return "Average rating: {}".format(round(float(num_stops), 1))
-
-
-# Main graph -> individual graph
-@app.callback(Output("individual_graph", "figure"), [Input("satellite_graph", "hoverData")])
-def make_individual_figure(main_graph_hover):
-    layout_individual = copy.deepcopy(layout)
-
-    if main_graph_hover is None:
-        main_graph_hover = {
-            "points": [
-                {"curveNumber": 4, "pointNumber": 569, "customdata": 31101173130000}
-            ]
-        }
-
-    chosen = [point["customdata"] for point in main_graph_hover["points"]]
-    index, gas, oil, water = produce_individual(chosen[0])
-
-    if index is None:
-        annotation = dict(
-            text="No data available",
-            x=0.5,
-            y=0.5,
-            align="center",
-            showarrow=False,
-            xref="paper",
-            yref="paper",
-        )
-        layout_individual["annotations"] = [annotation]
-        data = []
-    else:
-        data = [
-            dict(
-                type="scatter",
-                mode="lines+markers",
-                name="Rating (mcf)",
-                x=index,
-                y=gas,
-                line=dict(shape="spline", smoothing=2, width=1, color="#fac1b7"),
-                marker=dict(symbol="diamond-open"),
-            ),
-            dict(
-                type="scatter",
-                mode="lines+markers",
-                name="Price (bbl)",
-                x=index,
-                y=oil,
-                line=dict(shape="spline", smoothing=2, width=1, color="#a9bb95"),
-                marker=dict(symbol="diamond-open"),
-            ),
-            dict(
-                type="scatter",
-                mode="lines+markers",
-                name="Water Produced (bbl)",
-                x=index,
-                y=water,
-                line=dict(shape="spline", smoothing=2, width=1, color="#92d8d8"),
-                marker=dict(symbol="diamond-open"),
-            ),
-        ]
-        layout_individual["title"] = dataset[chosen[0]]["Well_Name"]
-
-    figure = dict(data=data, layout=layout_individual)
-    return figure
 
 
 # Selected Data in the Histogram updates the Values in the DatePicker
