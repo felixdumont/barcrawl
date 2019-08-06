@@ -79,15 +79,29 @@ app.layout = html.Div(
                     [
                         html.Div(
                             [
+                                html.Div([
+                                    html.Img(
+                                        src=app.get_asset_url("mit_logo.png"),
+                                        id="mit-image",
+                                        style={
+                                            "height": "60px",
+                                            "width": "auto",
+                                            "margin-bottom": "25px",
+                                        }, className="plotly-logo"
+                                    ), ], className='eight columns'),
+                                html.Div([
                                 html.Img(
-                                    src=app.get_asset_url("mit_logo.png"),
-                                    id="mit-image",
+                                    src=app.get_asset_url("yelp_logo.png"),
+                                    id="yelp-image",
                                     style={
                                         "height": "60px",
                                         "width": "auto",
                                         "margin-bottom": "25px",
+                                        "margin-right": "0px",
+                                        "text-align": "right"
                                     }, className="plotly-logo"
-                                )
+
+                                ), ], className='four columns'),
                             ],
                             className="mobile_forms",
                         ),
@@ -340,10 +354,10 @@ def fill_tab(tab):
                         [dcc.Graph(id="satellite_graph")],
                         className="pretty_container seven columns",
                     ),
-                    html.Div(
-                        [dcc.Graph(id="individual_graph")],
-                        className="pretty_container five columns",
-                    ),
+                    #html.Div(
+                    #    [dcc.Graph(id="individual_graph")],
+                    #    className="pretty_container five columns",
+                   # ),
                 ],
                 className="row eight columns",
             )]
@@ -444,14 +458,16 @@ def make_main_figure(walking_time, go_button):
     dff = df_bars.loc[lambda f: f['city'] == 'Toronto'][:10]
     dff['rounded_review'] = round(dff['stars'], 0)
     traces = []
+    bar_num = 0
     for name, dfff in dff.groupby("name"):
+        bar_num = bar_num + 1
         trace = dict(
             type="scattermapbox",
             lon=dfff["longitude"],
             lat=dfff["latitude"],
             text=dfff['name'],
             customdata=dfff["rounded_review"],
-            name=name,
+            name="{}. {} ".format(bar_num, name),
             marker=dict(size=12, opacity=0.6),
         )
         traces.append(trace)
@@ -482,7 +498,7 @@ def make_main_figure(walking_time, go_button):
               [State("num_stops", "value")])
 def filter_dataframe(go, num_stops):
     # TODO: Call model from here
-    return "Combinations considered: {}".format(num_stops)
+    return "Combinations considered: {:,}".format(num_stops*1241245)
 
 
 @app.callback(Output("avg_rating", "children"),
@@ -490,7 +506,7 @@ def filter_dataframe(go, num_stops):
               [State("num_stops", "value")])
 def avg_rating(go, num_stops):
     # TODO: Call model from here
-    return "Average rating: {}".format(num_stops)
+    return "Average rating: {}".format(round(float(num_stops), 1))
 
 
 # Main graph -> individual graph
@@ -671,7 +687,6 @@ def change_focus(click):
     if click:
         return "tab-two"
     return "tab-one"
-
 
 # Main
 if __name__ == "__main__":
