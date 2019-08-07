@@ -30,9 +30,44 @@ def one_time_filter(df):
     # TODO: Add other cleaning
     return df_bars
 
+def cityfilter(df, city):
+    df = df[(df['city'].str.contains(city))]
+    return df
 
-def generate_business_csv(json_file, file_dest):
+def openfilter(df):
+    df_open = df[(df['is_open']==1)]
+    return df_open
+
+def separate_attributes(df):
+    attributes=bars['attributes'].apply(pd.Series)
+    df_att=pd.concat([df, attributes],axis=1).drop('attributes', axis=1)
+    return df_att
+
+
+def hoursbyday(df):
+    #separate hours into days
+    hours=df['hours'].apply(pd.Series)
+    df_hrs=pd.concat([df, hours],axis=1).drop('hours', axis=1)
+
+    #separate days into open/close times
+    days=['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+    for day in days:
+        temp=df_hrs[day].str.split("-", n=1, expand=True)
+        df_hrs[day+' open']=temp[0]
+        df_hrs[day+' close']=temp[1]
+    return df_hrs
+
+def getcolumns(df):
+    categories=['address','categories','city','is_open', 'latitude', 'longitude', 'name', 'review_count','stars', 'Monday open', 'Monday close','Tuesday open', 'Tuesday close', 'Wednesday open', 'Wednesday close', 'Thursday open', 'Thursday close', 'Friday open', 'Friday close', 'Saturday open', 'Saturday close', 'Sunday open', 'Sunday close', 'Alcohol', 'WiFi']
+    df_cols=df[categories]
+    return df_cols
+
+def generate_business_csv(json_file, file_dest, city):
     df = read_json(json_file)
     df = clean_dtypes(df)
     df = one_time_filter(df)
+    df = openfilter(df)
+    df = cityfilter(df, city)
+    df = hoursbyday(df)
+    df = getcolumns(df)
     df.to_csv(file_dest)
