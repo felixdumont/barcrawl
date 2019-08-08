@@ -1,7 +1,10 @@
 # Import required libraries
 # Import required libraries
 import pickle
+import requests
 import copy
+import shutil
+import os
 import pathlib
 import dash
 import math
@@ -75,18 +78,18 @@ app.layout = html.Div(
                                         }, className="plotly-logo"
                                     ), ], className='eight columns'),
                                 html.Div([
-                                html.Img(
-                                    src=app.get_asset_url("yelp_logo.png"),
-                                    id="yelp-image",
-                                    style={
-                                        "height": "60px",
-                                        "width": "auto",
-                                        "margin-bottom": "25px",
-                                        "margin-right": "0px",
-                                        "text-align": "right"
-                                    }, className="plotly-logo"
+                                    html.Img(
+                                        src=app.get_asset_url("yelp_logo.png"),
+                                        id="yelp-image",
+                                        style={
+                                            "height": "60px",
+                                            "width": "auto",
+                                            "margin-bottom": "25px",
+                                            "margin-right": "0px",
+                                            "text-align": "right"
+                                        }, className="plotly-logo"
 
-                                ), ], className='four columns'),
+                                    ), ], className='four columns'),
                             ],
                             className="mobile_forms",
                         ),
@@ -122,7 +125,7 @@ app.layout = html.Div(
                         html.Div(
                             [html.Div([
                                 html.Div([
-                                    html.Div([
+                                    html.Div(children=[
                                         html.Label(
                                             "Select a date:"
                                         ),
@@ -130,13 +133,17 @@ app.layout = html.Div(
                                 ], className="mobile_forms", hidden=True),
                                 html.Div([
                                     html.Div([
+                                        html.Label("Enter a start address (optional):"),
+                                        dcc.Textarea(id="address")
+                                    ], className="mobile_forms"),
+                                    html.Div([
                                         html.Label(
                                             "Select a date:"
                                         ),
                                         dcc.DatePickerSingle(
                                             id='crawl_date',
                                             min_date_allowed=dt.datetime.today(),
-                                            #with_portal=True,
+                                            # with_portal=True,
                                             # max_date_allowed=dt.datetime(2020, 9, 19),
                                             # initial_visible_month=dt.datetime(2020, 8, 5),
                                             date=str(dt.datetime.today()))
@@ -257,7 +264,7 @@ app.layout = html.Div(
                             className="mobile_forms",
                             id="cross-filter-options",
                         ),
-
+                        html.Div([], hidden=True),
                     ],
                     id="right-column",
                     className="mobile_forms",
@@ -324,6 +331,17 @@ def fill_tab(tab):
                 html.Br(),
                 html.Button('Show route', id='details_button', className="button_submit"),
             ]),
+                html.Div(id='controls-container', children=[
+                    html.Img(
+                        src=app.get_asset_url("tmp_walk_giphy.gif"),
+                        id="walk-image",
+                        style={
+                            "height": "300px",
+                            "width": "auto",
+                            "margin-bottom": "0px",
+                            "margin-top": "0px",
+                        }, className="plotly-logo"
+                    ), ]),
                 html.Div(
                     [html.Div(html.H1(id='combinations'), className='pretty_container six columns'),
                      html.Div(
@@ -339,16 +357,17 @@ def fill_tab(tab):
                         [dcc.Graph(id="satellite_graph")],
                         className="pretty_container seven columns",
                     ),
-                    #html.Div(
+                    # html.Div(
                     #    [dcc.Graph(id="individual_graph")],
                     #    className="pretty_container five columns",
-                   # ),
+                    # ),
                 ],
                 className="row eight columns",
             )]
 
     return [
-        html.Label("Welcome to the bar crawl simulator. Please select your desired settings on the left and press GO."),
+        html.Label(
+            "Welcome to the bar crawl simulator. Please select your desired settings on the left and apply the filters."),
         html.Img(
             src=app.get_asset_url("giphy (2).gif"),
             id="mit-image",
@@ -367,13 +386,30 @@ def human_format(num):
     return mantissa + ["", "K", "M", "G", "T", "P"][magnitude]
 
 
+@app.callback(
+    Output("start_coordinates", "value"),
+    [Input("address", "value"), Input("details_button", "n_clicks")]
+)
+def get_start_coordinates(address, nclicks):
+    url = "https://maps.googleapis.com/maps/api/geocode/json"
+    params = {"address": address, "key": "AIzaSyBc79c0Z3eMZZsvN-Je3QWr5_ehgVFM8Wg"}
+    r = requests.get(url, params=params)
+    add = (r.json()['results'])
+    coordinate_dict = add[0]['geometry']['location']
+    print(coordinate_dict)
+    with open('data/start_coordinates', 'wb') as handle:
+        pickle.dump(coordinate_dict, handle, protocol=pickle.HIGHEST_PROTOCOL)
+    return coordinate_dict
+
+
 # Selectors -> main graph
 @app.callback(
     Output("satellite_graph", "figure"),
-    [Input("walking_time", "value"), Input("details_button", "n_clicks")]
+    [Input("walking_time", "value"), Input("details_button", "n_clicks"), Input("crawl-tabs", "value")]
 )
-def make_main_figure(walking_time, go_button):
+def make_main_figure(walking_time, go_button, tab):
     # dff = filter_dataframe(df, well_statuses, well_types, hour_slider)
+
     df = pd.read_csv('business.csv')
     df_bars = df[(df['categories'].str.contains('Bars')
                   | df['categories'].str.contains('Nightlife')
@@ -384,6 +420,21 @@ def make_main_figure(walking_time, go_button):
     dff['rounded_review'] = round(dff['stars'], 0)
     traces = []
     bar_num = 0
+
+    with open('data/start_coordinates', 'rb') as handle:
+        start_coordinates = pickle.load(handle)
+
+    trace = dict(
+        type="scattermapbox",
+        lon=[start_coordinates["lng"]],
+        lat=[start_coordinates["lat"]],
+        text='Starting point',
+        customdata='',
+        name="Starting position",
+        marker=dict(size=12, opacity=0.6),
+    )
+    traces.append(trace)
+
     for name, dfff in dff.groupby("name"):
         bar_num = bar_num + 1
         trace = dict(
@@ -415,6 +466,7 @@ def make_main_figure(walking_time, go_button):
     )
 
     figure = dict(data=traces, layout=layout)
+
     return figure
 
 
@@ -423,7 +475,7 @@ def make_main_figure(walking_time, go_button):
               [State("num_stops", "value")])
 def filter_dataframe(go, num_stops):
     # TODO: Call model from here
-    return "Combinations considered: {:,}".format(num_stops*1241245)
+    return "Combinations considered: {:,}".format(num_stops * 1241245)
 
 
 @app.callback(Output("avg_rating", "children"),
@@ -549,6 +601,20 @@ def change_focus(click):
     if click:
         return "tab-two"
     return "tab-one"
+
+
+@app.callback(Output('controls-container', 'style'), [Input('details_button', 'n_clicks'),
+                                                      Input('satellite_graph', 'figure')])
+def toggle_container(toggle_value, graph):
+    print(toggle_value)
+    if toggle_value is None:
+        return {'display': 'none'}
+    if len(graph) > 1:
+        return {'display': 'none'}
+    if toggle_value >= 1:
+        return {'display': 'block'}
+    return {'display': 'none'}
+
 
 # Main
 if __name__ == "__main__":
