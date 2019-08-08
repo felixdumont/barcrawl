@@ -2,6 +2,7 @@
 # Import required libraries
 import pickle
 import requests
+import config
 import copy
 import shutil
 import os
@@ -333,7 +334,7 @@ def fill_tab(tab):
             ]),
                 html.Div(id='controls-container', children=[
                     html.Img(
-                        src=app.get_asset_url("tmp_walk_giphy.gif"),
+                        src=app.get_asset_url("giphy_walk.gif"),
                         id="walk-image",
                         style={
                             "height": "300px",
@@ -392,7 +393,7 @@ def human_format(num):
 )
 def get_start_coordinates(address, nclicks):
     url = "https://maps.googleapis.com/maps/api/geocode/json"
-    params = {"address": address, "key": ""}
+    params = {"address": address, "key": config.KEY}
     r = requests.get(url, params=params)
     add = (r.json()['results'])
     coordinate_dict = add[0]['geometry']['location']
