@@ -392,7 +392,7 @@ def human_format(num):
 )
 def get_start_coordinates(address, nclicks):
     url = "https://maps.googleapis.com/maps/api/geocode/json"
-    params = {"address": address, "key": "AIzaSyBc79c0Z3eMZZsvN-Je3QWr5_ehgVFM8Wg"}
+    params = {"address": address, "key": ""}
     r = requests.get(url, params=params)
     add = (r.json()['results'])
     coordinate_dict = add[0]['geometry']['location']
