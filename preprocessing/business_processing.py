@@ -70,16 +70,49 @@ def hoursbyday(df):
 
 
 def getcolumns(df):
-    categories = ['address', 'categories', 'city', 'latitude', 'longitude', 'name', 'RestaurantsPriceRange2',
+    categories = ['business_id', 'address', 'categories', 'city', 'latitude', 'longitude', 'name', 'RestaurantsPriceRange2',
                   'review_count', 'stars', 'Monday open', 'Monday close', 'Tuesday open', 'Tuesday close',
                   'Wednesday open', 'Wednesday close', 'Thursday open', 'Thursday close', 'Friday open', 'Friday close',
                   'Saturday open', 'Saturday close', 'Sunday open', 'Sunday close', 'Alcohol', 'WiFi']
     df_cols = df[categories]
     return df_cols
 
+def create_check_ins(json_file, df):
+    check_df = pd.read_json(json_file, lines=True)
+    df = pd.merge(df, check_df, how = "left", on = ["business_id"])
 
-def generate_business_csv(json_file, file_dest, city):
-    df = read_json(json_file)
+    check_ins_2018 = []
+    for i in range(len(df)):
+        try:
+            check_ins_2018.append(df["date"][i].count("2018"))
+        except:
+            check_ins_2018.append(0)
+    df['2018_check_ins'] = check_ins_2018
+    return df
+
+def calculate_wait_time(df, percentiles, wait_time_distr):
+    #percentiles = [.5, .6, .7, .8, .9, 1]
+    #wait_time_distr = [0, 5, 10, 15, 20, 30]
+    check_ins_2018 = df['2018_check_ins']
+    quantile_distr = df[df['2018_check_ins']>0]['2018_check_ins'].quantile(q = percentiles)
+    wait_time = []
+    for bar in range(len(df)):
+        for percentile in range(len(percentiles)):
+            if check_ins_2018[bar] <= quantile_distr[percentiles[percentile]]:
+                wait_time.append(wait_time_distr[percentile])
+                break
+    df['wait_time'] = wait_time
+    df = df.drop(columns = ['date', '2018_check_ins'])
+    return df
+
+def generate_business_df(business_json_file, city):
+    df = read_json(business_json_file)
     df = clean_dtypes(df)
     df = one_time_filter(df, city)
+    return df
+
+def generate_full_csv(business_json_file, city, check_in_json_file, file_dest, percentiles, wait_time_distr):
+    df = generate_business_df(business_json_file, city)
+    df = create_check_ins(check_in_json_file, df)
+    df = calculate_wait_time(df, percentiles, wait_time_distr)
     df.to_csv(file_dest)
