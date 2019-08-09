@@ -38,4 +38,5 @@ def filter_dataset(df, min_review_ct, min_rating, date, budget_range):
                        'Friday close',
                        'Saturday open', 'Saturday close', 'Sunday open', 'Sunday close']
     df = df.drop(columns=columns_to_drop)
+    df = df.dropna(subset = ['open', 'close'])
     return df
