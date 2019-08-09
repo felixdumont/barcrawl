@@ -38,14 +38,14 @@ def calculate_distance(loc1, loc2, method='euclidean'):
         return distance.distance(loc1, loc2).miles
 
 
-def walking_time(dist, speed=2):
+def walking_time(dist, speed=4):
     """
     Calculates the time required to walk the distance for a given speed.
-    :param distance: Distance in miles
-    :param speed: Speed in miles/hr (default value = 2 miles/hr)
+    :param distance: Distance in km
+    :param speed: Speed in km/hr (default value = 4 km/hr)
     :return: Walking time in minutes
     """
-    t_walking = dist / speed * 60
+    t_walking = dist / speed
 
     return t_walking
 
@@ -61,8 +61,7 @@ def generate_distance_matrix(locations, names, method='euclidean'):
     dist_matrix = [[0] * n for i in range(n)]
     for row in range(n):
         for col in range(n):
-            dist_matrix[row][col] = calculate_distance(locations[row], locations[col], method)
+            dist_matrix[row][col] = walking_time(calculate_distance(locations[row], locations[col], method))
     df = pd.DataFrame(dist_matrix, columns=names, index=names)
-    df.to_csv('data/distance.csv')
 
     return df

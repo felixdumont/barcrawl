@@ -1,5 +1,5 @@
 import pandas as pd
-
+from preprocessing.business_utils import generate_distance_matrix
 
 def read_json(file):
     return pd.read_json(file, lines=True)
@@ -70,7 +70,7 @@ def hoursbyday(df):
 
 
 def getcolumns(df):
-    categories = ['address', 'categories', 'city', 'latitude', 'longitude', 'name', 'RestaurantsPriceRange2',
+    categories = ['business_id', 'address', 'categories', 'city', 'latitude', 'longitude', 'name', 'RestaurantsPriceRange2',
                   'review_count', 'stars', 'Monday open', 'Monday close', 'Tuesday open', 'Tuesday close',
                   'Wednesday open', 'Wednesday close', 'Thursday open', 'Thursday close', 'Friday open', 'Friday close',
                   'Saturday open', 'Saturday close', 'Sunday open', 'Sunday close', 'Alcohol', 'WiFi']
@@ -83,3 +83,8 @@ def generate_business_csv(json_file, file_dest, city):
     df = clean_dtypes(df)
     df = one_time_filter(df, city)
     df.to_csv(file_dest)
+
+    # Generate distance matrix as a CSV
+    coordinates = list(zip(df.latitude, df.longitude))
+    distance_matrix = generate_distance_matrix(coordinates, df['business_id'], 'manhattan')
+    distance_matrix.to_csv('data/distances.csv')
