@@ -1,5 +1,7 @@
 import math
 from geopy import distance
+import pandas as pd
+
 
 def calculate_distance(loc1, loc2, method='euclidean'):
     """
@@ -48,16 +50,19 @@ def walking_time(dist, speed=2):
     return t_walking
 
 
-def generate_distance_matrix(locations, method='euclidean'):
+def generate_distance_matrix(locations, names, method='euclidean'):
     """
     Given a list of n tuples representing location coordinates, return an nxn matrix containing all of the distances
     :param locations: list of n tuples representing location coordinates
-    :return: nxn matrix containing all of the distances
+    :param names: list of names, ordered in the same way as locations
+    :return: data frame, nxn matrix containing all of the distances
     """
     n = len(locations)
     dist_matrix = [[0] * n for i in range(n)]
     for row in range(n):
         for col in range(n):
             dist_matrix[row][col] = calculate_distance(locations[row], locations[col], method)
+    df = pd.DataFrame(dist_matrix, columns=names, index=names)
+    df.to_csv('data/distance.csv')
 
-    return dist_matrix
+    return df
