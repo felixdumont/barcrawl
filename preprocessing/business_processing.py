@@ -77,11 +77,17 @@ def getcolumns(df):
     df_cols = df[categories]
     return df_cols
 
-
-def generate_business_csv(json_file, file_dest, city):
-    df = read_json(json_file)
+def generate_business_df(business_json_file, city):
+    df = read_json(business_json_file)
     df = clean_dtypes(df)
     df = one_time_filter(df, city)
+    return df
+
+def generate_full_csv(business_json_file, city, check_in_json_file, file_dest, percentiles, wait_time_distr):
+    #generate full CSV file for input to model
+    df = generate_business_df(business_json_file, city)
+    df = create_check_ins(check_in_json_file, df)
+    df = calculate_wait_time(df, percentiles, wait_time_distr)
     df.to_csv(file_dest)
 
     # Generate distance matrix as a CSV
