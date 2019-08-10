@@ -62,6 +62,5 @@ def generate_distance_matrix(locations, names, method='euclidean'):
     for row in range(n):
         for col in range(n):
             dist_matrix[row][col] = walking_time(calculate_distance(locations[row], locations[col], method))
-    df = pd.DataFrame(dist_matrix, columns=names, index=names)
 
-    return df
+    return dist_matrix
