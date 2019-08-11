@@ -21,6 +21,7 @@ class Solution:
     total_walking_time: float
     total_waiting_time: float
     avg_rating: float # Optimal Gurobi obj. function
+    max_walking_time: float
 
 
 def get_optimal_route(df, start_time, end_time, bar_num, total_max_walking_time, max_walking_each, max_total_wait, dima):
@@ -176,14 +177,14 @@ def get_pareto_routes(df, start_time, end_time, bar_num, total_max_walking_time,
     """
     solutions = []
     wait_times = df['wait_time'] / 60
-    for max_walking_time in range(bar_num*5, int(total_max_walking_time * 60), 5):
+    for max_walking_time in range(5*bar_num, int(total_max_walking_time * 60), 5):
         bars = []
         model, y_var, z_var = get_optimal_route(df, start_time, end_time, bar_num, max_walking_time / 60,
                                                max_walking_each, max_total_wait, dima)
 
         locations = len(z_var[0])
-        #if model is None:
-        #    continue
+        if model.status in [3,4,5]: # If infeasible or unbounded
+            continue
         for k in range(len(z_var)):
             for i in range(locations):
                 for j in range(locations):
@@ -203,14 +204,14 @@ def get_pareto_routes(df, start_time, end_time, bar_num, total_max_walking_time,
                         rating = str(df.loc[lambda f: f['business_id'] == bar_id]['stars'].values[0])
                         bars.append(Bar(bar_id, name, longitude, latitude, rating))  # This is ordered
 
-        total_walk_time = sum([z_var[w][i][j] * dima[i][j]
+        total_walk_time = sum([z_var[w][i][j].x * dima[i][j]
                   for i in range(locations)
                   for j in range(locations)
                   for w in range(bar_num - 1)])
         avg_rating = model.objval/bar_num
-        total_wait = sum([wait_times[i] * y_var[i] for i in range(locations)])
+        total_wait = sum([wait_times[i] * y_var[i].x for i in range(locations)])
 
-        best_solution = Solution(bars, total_walk_time, total_wait, avg_rating)
+        best_solution = Solution(bars, total_walk_time, total_wait, avg_rating, max_walking_time)
         solutions.append(best_solution)
     return solutions
 
@@ -233,10 +234,11 @@ def crawl_model(min_review_ct, min_rating, date, budget_range, start_time, end_t
 
     df = load_dataset(csv)
     df = filter_dataset(df, min_review_ct, min_rating, date, budget_range).reset_index()
-    dima = pd.read_csv(distance_csv)
+    dima = pd.read_csv(distance_csv, header=0, index_col=0)
     dima = dima.values.tolist()
+    print(dima[0])
     # TODO - remove filter
-    df = df[:100]
+    df = df[:50]
 
     #     Return one optimal solution
     #     optrout,z,y,x,dima = get_optimal_route(df, start_time, end_time, bar_num,
