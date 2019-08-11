@@ -15,7 +15,6 @@ from plotly import graph_objs as go
 from colour import Color
 
 # Multi-dropdown options
-from controls import NEIGHBORHOODS
 
 # get relative data folder
 PATH = pathlib.Path(__file__).parent
