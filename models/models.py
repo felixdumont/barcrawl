@@ -190,16 +190,18 @@ def get_pareto_routes(df, start_time, end_time, bar_num, total_max_walking_time,
                     if z_var[k][i][j].x != 0:
                         if k == 0:
                             bar_id = y_var[i].VarName[2:]
-                        else:
-                            bar_id = y_var[j].VarName[2:]
+                            name = str(df.loc[lambda f: f['business_id'] == bar_id]['name'].values[0])
+                            longitude = float(df.loc[lambda f: f['business_id'] == bar_id]['longitude'].values[0])
+                            latitude = float(df.loc[lambda f: f['business_id'] == bar_id]['latitude'].values[0])
+                            rating = str(df.loc[lambda f: f['business_id'] == bar_id]['stars'].values[0])
+                            bars.append(Bar(bar_id, name, longitude, latitude, rating)) # This is ordered
 
-                        print(bar_id)
-                        print(df.loc[lambda f: f['business_id'] == bar_id]['name'])
+                        bar_id = y_var[j].VarName[2:]
                         name = str(df.loc[lambda f: f['business_id'] == bar_id]['name'].values[0])
                         longitude = float(df.loc[lambda f: f['business_id'] == bar_id]['longitude'].values[0])
                         latitude = float(df.loc[lambda f: f['business_id'] == bar_id]['latitude'].values[0])
                         rating = str(df.loc[lambda f: f['business_id'] == bar_id]['stars'].values[0])
-                        bars.append(Bar(bar_id, name, longitude, latitude, rating)) # This is ordered
+                        bars.append(Bar(bar_id, name, longitude, latitude, rating))  # This is ordered
 
         total_walk_time = sum([z_var[w][i][j] * dima[i][j]
                   for i in range(locations)
