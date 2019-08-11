@@ -6,7 +6,21 @@ import pandas as pd
 from gurobipy import *
 
 
-def get_optimal_route(df, start_time, end_time, bar_num, total_max_walking_time, max_walking_each, max_total_wait):
+@dataclass
+class Bar:
+    name: str
+    latitude: str
+    longitude: str
+    rating: float
+
+
+@dataclass
+class Solution:
+    bars = List[Bar]
+    total_max_walking_time = float
+
+
+def get_optimal_route(df, start_time, end_time, bar_num, total_max_walking_time, max_walking_each, max_total_wait, dima):
     """
 
     :param df:
@@ -32,8 +46,8 @@ def get_optimal_route(df, start_time, end_time, bar_num, total_max_walking_time,
     y = []
     x = [[0 for j in range(len(locations))] for i in range(len(locations))]
     z = [[[0 for j in range(len(locations))] for i in range(len(locations))] for k in range(bar_num - 1)]
-    coordinates = list(zip(df.latitude, df.longitude))
-    dima = generate_distance_matrix(coordinates, df['business_id'], 'manhattan')
+    #coordinates = list(zip(df.latitude, df.longitude))
+    #dima = generate_distance_matrix(coordinates, df['business_id'], 'manhattan')
 
     # create decision variables
     for loc in locations:
@@ -143,7 +157,8 @@ def get_optimal_route(df, start_time, end_time, bar_num, total_max_walking_time,
     m.optimize()
     return m
 
-def get_pareto_routes(df, start_time, end_time, bar_num, total_max_walking_time, max_walking_each, max_total_wait):
+
+def get_pareto_routes(df, start_time, end_time, bar_num, total_max_walking_time, max_walking_each, max_total_wait, dima):
     """
     Returns total_max_walking_time / 5 suggested routes (e.g. one for 0-5 mins walk, one for 5-10 mins walk, etc.).
     Pareto routes contain
@@ -156,15 +171,15 @@ def get_pareto_routes(df, start_time, end_time, bar_num, total_max_walking_time,
     :return: A list of Solutions
     """
     solutions = []
-    for max_walking_time in range(30, int(total_max_walking_time*60), 5):
-        for max_waiting_time in range(30, int(max_total_wait*60), 5):
-            solutions.append(get_optimal_route(df, start_time, end_time, bar_num, max_walking_time/60,
-                                           max_walking_each, max_waiting_time/60))
+    for max_walking_time in range(30, int(total_max_walking_time * 60), 5):
+        for max_waiting_time in range(30, int(max_total_wait * 60), 5):
+            solutions.append(get_optimal_route(df, start_time, end_time, bar_num, max_walking_time / 60,
+                                               max_walking_each, max_waiting_time / 60, dima))
     return solutions
 
 
 def crawl_model(min_review_ct, min_rating, date, budget_range, start_time, end_time, bar_num, total_max_walking_time,
-                max_walking_each, max_total_wait, csv):
+                max_walking_each, max_total_wait, csv, distance_csv):
     """
     :param date:
     :param start_time:
@@ -181,6 +196,9 @@ def crawl_model(min_review_ct, min_rating, date, budget_range, start_time, end_t
 
     df = load_dataset(csv)
     df = filter_dataset(df, min_review_ct, min_rating, date, budget_range).reset_index()
+    dima = pd.read_csv(distance_csv)
+    dima = dist_matr.values.tolist()
+    # TODO - remove filter
     df = df[:50]
 
     #     Return one optimal solution
@@ -188,7 +206,6 @@ def crawl_model(min_review_ct, min_rating, date, budget_range, start_time, end_t
     #                                           total_max_walking_time, max_walking_each, max_total_wait)
     #   return optrout,z,y,x,dima
     pareto_df = get_pareto_routes(df, start_time, end_time, bar_num, total_max_walking_time, max_walking_each,
-                                  max_total_wait)
+                                  max_total_wait, dima)
 
     return pareto_df
-
