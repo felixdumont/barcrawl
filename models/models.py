@@ -16,8 +16,8 @@ class Bar:
 
 @dataclass
 class Solution:
-    bars = List[Bar]
-    total_max_walking_time = float
+    bars: List[Bar]
+    total_max_walking_time: float
 
 
 def get_optimal_route(df, start_time, end_time, bar_num, total_max_walking_time, max_walking_each, max_total_wait, dima):
