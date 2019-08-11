@@ -197,7 +197,7 @@ def crawl_model(min_review_ct, min_rating, date, budget_range, start_time, end_t
     df = load_dataset(csv)
     df = filter_dataset(df, min_review_ct, min_rating, date, budget_range).reset_index()
     dima = pd.read_csv(distance_csv)
-    dima = dist_matr.values.tolist()
+    dima = dima.values.tolist()
     # TODO - remove filter
     df = df[:50]
 
