@@ -29,7 +29,7 @@ def filter_dataset(df, min_review_ct, min_rating, date, budget_range):
     df = df[df['RestaurantsPriceRange2'].isin(
         budget_range)]  # filter for budget range, need to make sure input is a list with the right format
     df = df[(df['review_count'] >= min_review_ct) & (
-                df['stars'] >= min_rating)]  # filter out bars without min review count or min rating
+            df['stars'] >= min_rating)]  # filter out bars without min review count or min rating
 
     # change open and close column to only be related to the day inputted by the user
     df['open'] = df[day_of_week + " open"]
