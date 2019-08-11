@@ -1,10 +1,14 @@
 # On the spot filtering. Different from the one-time preprocessing
-def load_dataset():
+import pandas as pd
+
+
+def load_dataset(data_input):
     """
     Load dataset from the preprocessed CSV
     :return:
     """
-    pass
+    df = pd.read_csv(data_input)
+    return df
 
 
 def get_day_of_week(date):
