@@ -1,6 +1,7 @@
 import pandas as pd
 from preprocessing.business_utils import generate_distance_matrix
 
+
 def read_json(file):
     return pd.read_json(file, lines=True)
 
@@ -47,10 +48,11 @@ def separate_attributes(df):
     df_att = pd.concat([df, attributes], axis=1).drop('attributes', axis=1)
     return df_att
 
+
 def format_hour(hour, close=False):
-    if hour == hour and hour is not None: # hour==hour checks for NaN
+    if hour == hour and hour is not None:  # hour==hour checks for NaN
         hour = float(hour.split(":")[0]) + float(hour.split(":")[1]) / 60.0
-        if hour < 5 and close==True:
+        if hour < 5 and close == True:
             hour = hour + 24
     return hour
 
@@ -70,7 +72,8 @@ def hoursbyday(df):
 
 
 def getcolumns(df):
-    categories = ['business_id', 'address', 'categories', 'city', 'latitude', 'longitude', 'name', 'RestaurantsPriceRange2',
+    categories = ['business_id', 'address', 'categories', 'city', 'latitude', 'longitude', 'name',
+                  'RestaurantsPriceRange2',
                   'review_count', 'stars', 'Monday open', 'Monday close', 'Tuesday open', 'Tuesday close',
                   'Wednesday open', 'Wednesday close', 'Thursday open', 'Thursday close', 'Friday open', 'Friday close',
                   'Saturday open', 'Saturday close', 'Sunday open', 'Sunday close', 'Alcohol', 'WiFi']
@@ -78,10 +81,18 @@ def getcolumns(df):
     return df_cols
 
 
-def generate_business_csv(json_file, file_dest, city):
-    df = read_json(json_file)
+def generate_business_df(business_json_file, city):
+    df = read_json(business_json_file)
     df = clean_dtypes(df)
     df = one_time_filter(df, city)
+    return df
+
+
+def generate_full_csv(business_json_file, city, check_in_json_file, file_dest, percentiles, wait_time_distr):
+    # generate full CSV file for input to model
+    df = generate_business_df(business_json_file, city)
+    df = create_check_ins(check_in_json_file, df)
+    df = calculate_wait_time(df, percentiles, wait_time_distr)
     df.to_csv(file_dest)
 
     # Generate distance matrix as a CSV
