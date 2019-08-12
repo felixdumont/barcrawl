@@ -1,6 +1,7 @@
 from datetime import datetime
 from models.models import crawl_model
 from preprocessing.business_processing import generate_full_csv
+from preprocessing.business_utils import calculate_distance, walking_time, generate_distance_matrix
 
 
 percentiles = [0.5,0.6,0.7,0.8,0.9,1.0]
@@ -16,7 +17,7 @@ budget_range = [1, 2, 3, 4]
 start_time = 17
 end_time = 22
 bar_num = 6
-total_max_walking_time = 0.75
+total_max_walking_time = 1
 max_walking_each = 0.25
 max_total_wait = 1
 csv = "data/processed_data.csv"
@@ -27,4 +28,4 @@ solutions = crawl_model(min_review_ct, min_rating, date, budget_range, start_tim
 for solution in solutions:
     print(solution.total_walking_time)
     for bar in solution.bars:
-        print(bar.name, bar.id)
+        print(bar.name + ";" + bar.id)

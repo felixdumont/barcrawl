@@ -3,6 +3,7 @@
 from datetime import datetime
 import pandas as pd
 
+
 def load_dataset(csv):
     """
     Load dataset from the preprocessed CSV
@@ -41,3 +42,25 @@ def filter_dataset(df, min_review_ct, min_rating, date, budget_range):
     df = df.drop(columns=columns_to_drop)
     df = df.dropna(subset=['open', 'close'])
     return df
+
+
+def dima_filtered(df, dima_df):
+    keep_columns = dima_df.columns
+
+    filtered = pd.merge(dima_df, df, how="inner", on=["business_id"])
+    filtered = filtered[keep_columns]
+
+    keep_columns = filtered.columns
+    filtered = filtered.transpose()
+
+    filtered = filtered.rename(columns=filtered.iloc[0])
+
+    filtered = filtered.drop('business_id')
+    filtered = filtered.reset_index()
+    filtered = filtered.rename(columns={'index': 'business_id'})
+    keep_columns = filtered.columns[1:]
+    filtered = pd.merge(filtered, df, how="inner", on=["business_id"])
+    filtered = filtered[keep_columns]
+
+    dima = filtered.values.tolist()
+    return dima
