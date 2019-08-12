@@ -1,6 +1,7 @@
 # Import required libraries
-# Import required libraries
+
 import pickle
+from dateutil import parser
 import requests
 import config
 import copy
@@ -17,6 +18,7 @@ import dash_core_components as dcc
 import dash_html_components as html
 from plotly import graph_objs as go
 from colour import Color
+from models.models import crawl_model
 
 # Multi-dropdown options
 
@@ -32,7 +34,7 @@ server = app.server
 app.config['suppress_callback_exceptions'] = True
 
 price_range_options = [
-    {"label": price_range, "value": price_range}
+    {"label": price_range, "value": len(price_range)}
     for price_range in ['$', '$$', '$$$', '$$$$', '$$$$$']]
 
 points = pickle.load(open(DATA_PATH.joinpath("points.pkl"), "rb"))
@@ -198,7 +200,7 @@ app.layout = html.Div(
                                 html.Div([
                                     html.Label("Filter by budget range:"),
                                     dcc.Dropdown(
-                                        id="well_statuses",
+                                        id="budget_range",
                                         options=price_range_options,
                                         multi=True,
                                         value=[],
@@ -228,6 +230,14 @@ app.layout = html.Div(
                                             type='text',
                                             value=60,
                                             placeholder='Max total walking time'
+                                        )), ], className="six columns"),
+                                    html.Div([
+                                        html.Label("Max total waiting time"),
+                                        html.Div(dcc.Input(
+                                            id="max_waiting_time",
+                                            type='text',
+                                            value=30,
+                                            placeholder='Max total waiting time'
                                         )), ], className="six columns"),
                                     html.Div([
                                         html.Label("Max walking time between each bar"),
@@ -397,7 +407,7 @@ def get_start_coordinates(address, nclicks):
     r = requests.get(url, params=params)
     add = (r.json()['results'])
     coordinate_dict = add[0]['geometry']['location']
-    print(coordinate_dict)
+
     with open('data/start_coordinates', 'wb') as handle:
         pickle.dump(coordinate_dict, handle, protocol=pickle.HIGHEST_PROTOCOL)
     return coordinate_dict
@@ -504,7 +514,7 @@ def update_selected_data(clickData):
     if clickData:
         return {"points": []}
 
-
+"""
 # Update Histogram Figure based on Month, Day and Times Chosen
 @app.callback(
     Output("histogram", "figure"),
@@ -595,7 +605,7 @@ def make_aggregate_figure(nclicks, clickdata, walking_distance):
         ],
         layout=layout,
     )
-
+"""
 
 @app.callback(Output("crawl-tabs", "value"), [Input("apply_button", "n_clicks")])
 def change_focus(click):
@@ -616,6 +626,128 @@ def toggle_container(toggle_value, graph):
         return {'display': 'block'}
     return {'display': 'none'}
 
+
+@app.callback(
+    Output("histogram", "figure"),
+    [
+        Input("go_button", "n_clicks"),
+        Input("histogram", "clickData")
+    ],
+    [
+        State("walking_time", "value"),
+        State("crawl_date", "date"),
+        State("start_time", "value"),
+        State("end_time", "value"),
+        State("budget_range", "value"),
+        State("min_review_ct", "value"),
+        State("min_review", "value"),
+        State('single_walking_time', "value"),
+        State("num_stops", "value"),
+        State("max_waiting_time", "value")
+    ],
+
+)
+def get_pareto(nclicks, clickdata, total_max_walking_time, crawl_date, start_time, end_time, budget_range,
+               min_review_ct, min_review, single_walking_time, num_stops, max_waiting_time):
+    if nclicks is None:
+        return {}
+    crawl_date = parser.parse(crawl_date)
+
+    start_time = int(start_time)
+    if start_time < 5:
+        start_time = start_time + 24
+    end_time = int(end_time)
+    if end_time < 5:
+        end_time = end_time + 24
+    budget_range = [int(i) for i in budget_range]
+    min_review_ct = int(min_review_ct)
+    min_review = int(min_review)
+    single_walking_time = float(single_walking_time)/60
+    num_stops = int(num_stops)
+    max_waiting_time = int(max_waiting_time)
+    solutions = crawl_model(min_review_ct, min_review, crawl_date, budget_range, start_time, end_time, num_stops,
+                            total_max_walking_time, single_walking_time, max_waiting_time,
+                            'data/processed_data.csv', 'data/distances.csv')
+    xVal = []
+    yVal = []
+    for solution in solutions:
+        xVal.append(solution.max_walking_time)
+        yVal.append(solution.avg_rating)
+    xVal = np.array(xVal)
+    yVal = np.array(yVal)
+
+    colors = list(Color("blue").range_to(Color("green"), len(xVal)))
+
+    if total_max_walking_time != '':
+        walking_distance = float(total_max_walking_time)
+        total_max_walking_time = float(total_max_walking_time) / 60
+        colors = [(255 * c.rgb[0], 255 * c.rgb[1], 255 * c.rgb[2], 0.2) for c in colors]
+    else:
+        colors = [(255 * c.rgb[0], 255 * c.rgb[1], 255 * c.rgb[2], 0.5) for c in colors]
+
+    if walking_distance in xVal:
+        c_selected = colors[np.where(xVal == walking_distance)[0][0]]
+        colors[np.where(xVal == walking_distance)[0][0]] = (c_selected[0], c_selected[1], c_selected[2], 0.5)
+
+    colors = ['rgba({},{},{},{})'.format(round(a, 0), round(b, 0), round(c, 0), d) for (a, b, c, d) in colors]
+    layout = go.Layout(
+        bargap=0.01,
+        bargroupgap=0,
+        barmode="group",
+        margin=go.layout.Margin(l=40, r=40, t=30, b=50),
+        showlegend=False,
+        plot_bgcolor="#F9F9F9",
+        paper_bgcolor="#F9F9F9",
+        dragmode="select",
+        title="Select desired walking and waiting time / rating combination",
+        font=dict(color="black"),
+        xaxis=dict(
+            title='Total time spent walking and waiting at bars (minutes)',
+            range=[min(xVal), max(xVal)],
+            showgrid=False,
+            nticks=len(xVal),
+            fixedrange=True,
+            #  ticksuffix=":00",
+        ),
+        yaxis=dict(
+            #   range=[0, max(yVal) + max(yVal) / 4],
+            title='Average rating',
+            showticklabels=False,
+            showgrid=False,
+            fixedrange=True,
+            rangemode="nonnegative",
+            zeroline=False,
+        ),
+        annotations=[
+            dict(
+                x=xi,
+                y=yi,
+                text=str(yi),
+                xanchor="center",
+                yanchor="bottom",
+                showarrow=False,
+                font=dict(color="black"),
+            )
+            for xi, yi in zip(xVal, yVal)
+        ],
+    )
+
+    return go.Figure(
+        data=[
+            go.Bar(x=xVal, y=yVal, marker=dict(color=colors),
+                   hoverinfo="x"),
+            go.Scatter(
+                opacity=0,
+                x=xVal,
+                y=yVal,
+                hoverinfo="none",
+                mode="markers",
+                marker=dict(color="rgb(66, 134, 244, 0)", symbol="square", size=40),
+                visible=True,
+            ),
+        ],
+        layout=layout,
+    )
 
 # Main
 if __name__ == "__main__":

@@ -177,7 +177,7 @@ def get_pareto_routes(df, start_time, end_time, bar_num, total_max_walking_time,
     """
     solutions = []
     wait_times = df['wait_time'] / 60
-    for max_walking_time in range(5*bar_num, int(total_max_walking_time * 60), 5):
+    for max_walking_time in range(10, int(total_max_walking_time * 60), 5):
         bars = []
         model, y_var, z_var = get_optimal_route(df, start_time, end_time, bar_num, max_walking_time / 60,
                                                max_walking_each, max_total_wait, dima)
@@ -236,7 +236,6 @@ def crawl_model(min_review_ct, min_rating, date, budget_range, start_time, end_t
     df = filter_dataset(df, min_review_ct, min_rating, date, budget_range).reset_index()
     dima = pd.read_csv(distance_csv, header=0, index_col=0)
     dima = dima.values.tolist()
-    print(dima[0])
     # TODO - remove filter
     df = df[:50]
 
