@@ -20,7 +20,6 @@ from plotly import graph_objs as go
 from colour import Color
 from models.models import crawl_model
 
-# Multi-dropdown options
 
 # get relative data folder
 PATH = pathlib.Path(__file__).parent
@@ -651,43 +650,48 @@ def get_pareto(nclicks, clickdata, total_max_walking_time, crawl_date, start_tim
                min_review_ct, min_review, single_walking_time, num_stops, max_waiting_time):
     if nclicks is None:
         return {}
-    crawl_date = parser.parse(crawl_date)
+    if total_max_walking_time != '' and clickdata is None:
+        crawl_date = parser.parse(crawl_date)
+        total_max_walking_time = float(total_max_walking_time)/60
+        start_time = int(start_time)
+        if start_time < 5:
+            start_time = start_time + 24
+        end_time = int(end_time)
+        if end_time < 5:
+            end_time = end_time + 24
+        budget_range = [int(i) for i in budget_range]
+        min_review_ct = int(min_review_ct)
+        min_review = int(min_review)
+        single_walking_time = float(single_walking_time)/60
+        num_stops = int(num_stops)
+        max_waiting_time = int(max_waiting_time)
+        solutions = crawl_model(min_review_ct, min_review, crawl_date, budget_range, start_time, end_time, num_stops,
+                                total_max_walking_time, single_walking_time, max_waiting_time,
+                                'data/processed_data.csv', 'data/distances.csv')
+        xVal = []
+        yVal = []
+        for solution in solutions:
+            xVal.append(solution.max_walking_time)
+            yVal.append(solution.avg_rating)
+        xVal = np.array(xVal)
+        yVal = np.array(yVal)
+        np.savetxt('data/xVal.out', xVal)
+        np.savetxt('data/yVal.out', yVal)
 
-    start_time = int(start_time)
-    if start_time < 5:
-        start_time = start_time + 24
-    end_time = int(end_time)
-    if end_time < 5:
-        end_time = end_time + 24
-    budget_range = [int(i) for i in budget_range]
-    min_review_ct = int(min_review_ct)
-    min_review = int(min_review)
-    single_walking_time = float(single_walking_time)/60
-    num_stops = int(num_stops)
-    max_waiting_time = int(max_waiting_time)
-    solutions = crawl_model(min_review_ct, min_review, crawl_date, budget_range, start_time, end_time, num_stops,
-                            total_max_walking_time, single_walking_time, max_waiting_time,
-                            'data/processed_data.csv', 'data/distances.csv')
-    xVal = []
-    yVal = []
-    for solution in solutions:
-        xVal.append(solution.max_walking_time)
-        yVal.append(solution.avg_rating)
-    xVal = np.array(xVal)
-    yVal = np.array(yVal)
-
-    colors = list(Color("blue").range_to(Color("green"), len(xVal)))
-
-    if total_max_walking_time != '':
+        colors = list(Color("blue").range_to(Color("green"), len(xVal)))
         walking_distance = float(total_max_walking_time)
-        total_max_walking_time = float(total_max_walking_time) / 60
-        colors = [(255 * c.rgb[0], 255 * c.rgb[1], 255 * c.rgb[2], 0.2) for c in colors]
-    else:
         colors = [(255 * c.rgb[0], 255 * c.rgb[1], 255 * c.rgb[2], 0.5) for c in colors]
+    else:
+        xVal = np.loadtxt('data/xVal.out')
+        yVal = np.loadtxt('data/yVal.out')
+        colors = list(Color("blue").range_to(Color("green"), len(xVal)))
+        colors = [(255 * c.rgb[0], 255 * c.rgb[1], 255 * c.rgb[2], 0.2) for c in colors]
 
-    if walking_distance in xVal:
+    if total_max_walking_time != '' and clickdata is not None and float(total_max_walking_time) in xVal:
+        walking_distance = float(total_max_walking_time)
+        print("SELECTED {}, {}".format(walking_distance, clickdata))
         c_selected = colors[np.where(xVal == walking_distance)[0][0]]
-        colors[np.where(xVal == walking_distance)[0][0]] = (c_selected[0], c_selected[1], c_selected[2], 0.5)
+        colors[np.where(xVal == walking_distance)[0][0]] = (c_selected[0], c_selected[1], c_selected[2], 1.0)
 
     colors = ['rgba({},{},{},{})'.format(round(a, 0), round(b, 0), round(c, 0), d) for (a, b, c, d) in colors]
     layout = go.Layout(

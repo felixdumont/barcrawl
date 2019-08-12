@@ -157,6 +157,7 @@ def get_optimal_route(df, start_time, end_time, bar_num, total_max_walking_time,
 
     # Total wait time less than max allowed
     m.addConstr(quicksum([wait_times[i] * y[i] for i in range(len(locations))]) <= max_total_wait)
+    m.setParam('OutputFlag', 0)  # Also dual_subproblem.params.outputflag = 0
     m.setParam('TimeLimit', 30)
     m.setParam('MIPFocus', 1)
     m.optimize()
