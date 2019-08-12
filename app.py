@@ -420,17 +420,19 @@ def get_start_coordinates(address, nclicks):
 def make_main_figure(walking_time, go_button, tab):
     # dff = filter_dataframe(df, well_statuses, well_types, hour_slider)
 
-    df = pd.read_csv('business.csv')
-    df_bars = df[(df['categories'].str.contains('Bars')
-                  | df['categories'].str.contains('Nightlife')
-                  | df['categories'].str.contains('Pubs'))
-                 & (~df['categories'].str.contains('Sushi Bars')
-                    & ~df['categories'].str.contains('Juice Bars'))]
-    dff = df_bars.loc[lambda f: f['city'] == 'Toronto'][:10]
-    dff['rounded_review'] = round(dff['stars'], 0)
+    #df = pd.read_csv('business.csv')
+    solutions = pickle.load(open(DATA_PATH.joinpath("solutions.pkl"), "rb"))
+    #df_bars = df[(df['categories'].str.contains('Bars')
+    #              | df['categories'].str.contains('Nightlife')
+    #              | df['categories'].str.contains('Pubs'))
+    #             & (~df['categories'].str.contains('Sushi Bars')
+    #                & ~df['categories'].str.contains('Juice Bars'))]
+    #dff = df_bars.loc[lambda f: f['city'] == 'Toronto'][:10]
+    #dff['rounded_review'] = round(dff['stars'], 0)
     traces = []
     bar_num = 0
-
+    walking_time = float(walking_time)
+    solution = [x for x in solutions if abs(x.max_walking_time - walking_time) < 1][0]
     with open('data/start_coordinates', 'rb') as handle:
         start_coordinates = pickle.load(handle)
 
@@ -445,19 +447,21 @@ def make_main_figure(walking_time, go_button, tab):
     )
     traces.append(trace)
 
-    for name, dfff in dff.groupby("name"):
+    for bar in solution.bars:
         bar_num = bar_num + 1
         trace = dict(
             type="scattermapbox",
-            lon=dfff["longitude"],
-            lat=dfff["latitude"],
-            text=dfff['name'],
-            customdata=dfff["rounded_review"],
-            name="{}. {} ".format(bar_num, name),
+            lon=[bar.longitude],
+            lat=[bar.latitude],
+            text=bar.name,
+            customdata=bar.rating,
+            name="{}. {} ".format(bar_num, bar.name),
             marker=dict(size=12, opacity=0.6),
         )
         traces.append(trace)
 
+    avg_longitude = sum([bar.longitude for bar in solution.bars]) / bar_num
+    avg_latitude = sum([bar.latitude for bar in solution.bars]) / bar_num
     layout = dict(
         autosize=True,
         automargin=True,
@@ -470,7 +474,7 @@ def make_main_figure(walking_time, go_button, tab):
         mapbox=dict(
             accesstoken=mapbox_access_token,
             style="light",
-            center=dict(lon=dff['longitude'].mean(), lat=dff['latitude'].mean()),
+            center=dict(lon=avg_longitude, lat=avg_latitude),
             zoom=12,
         ),
     )
@@ -668,6 +672,9 @@ def get_pareto(nclicks, clickdata, total_max_walking_time, crawl_date, start_tim
         solutions = crawl_model(min_review_ct, min_review, crawl_date, budget_range, start_time, end_time, num_stops,
                                 total_max_walking_time, single_walking_time, max_waiting_time,
                                 'data/processed_data.csv', 'data/distances.csv')
+
+        with open('data/solutions.pkl', 'wb') as handle:
+            pickle.dump(solutions, handle, protocol=pickle.HIGHEST_PROTOCOL)
         xVal = []
         yVal = []
         for solution in solutions:
