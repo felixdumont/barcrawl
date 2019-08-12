@@ -1,4 +1,4 @@
-from models.processing import filter_dataset, load_dataset
+from models.processing import filter_dataset, load_dataset, dima_filtered
 from dataclasses import dataclass
 from typing import List
 from datetime import datetime
@@ -234,9 +234,9 @@ def crawl_model(min_review_ct, min_rating, date, budget_range, start_time, end_t
 
     df = load_dataset(csv)
     df = filter_dataset(df, min_review_ct, min_rating, date, budget_range).reset_index()
-    dima = pd.read_csv(distance_csv, header=0, index_col=0)
-    dima = dima.values.tolist()
-    print(dima[0])
+    dima = pd.read_csv(distance_csv, header = 0)
+    dima = dima_filtered(df, dima)
+
     # TODO - remove filter
     df = df[:50]
 
