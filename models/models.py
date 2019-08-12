@@ -157,6 +157,7 @@ def get_optimal_route(df, start_time, end_time, bar_num, total_max_walking_time,
 
     # Total wait time less than max allowed
     m.addConstr(quicksum([wait_times[i] * y[i] for i in range(len(locations))]) <= max_total_wait)
+    m.setParam('OutputFlag', 0)  # Also dual_subproblem.params.outputflag = 0
     m.setParam('TimeLimit', 30)
     m.setParam('MIPFocus', 1)
     m.optimize()
@@ -177,8 +178,9 @@ def get_pareto_routes(df, start_time, end_time, bar_num, total_max_walking_time,
     """
     solutions = []
     wait_times = df['wait_time'] / 60
-    for max_walking_time in range(5*bar_num, int(total_max_walking_time * 60), 5):
+    for max_walking_time in range(10, int(total_max_walking_time * 60), 5):
         bars = []
+        print("Running Pareto for max walking time {}".format(max_walking_time))
         model, y_var, z_var = get_optimal_route(df, start_time, end_time, bar_num, max_walking_time / 60,
                                                max_walking_each, max_total_wait, dima)
 
@@ -234,6 +236,10 @@ def crawl_model(min_review_ct, min_rating, date, budget_range, start_time, end_t
 
     df = load_dataset(csv)
     df = filter_dataset(df, min_review_ct, min_rating, date, budget_range).reset_index()
+
+    length = str(df.shape[0])
+    with open('data/df_length.output', 'w') as filehandle:
+        filehandle.write(length)
     dima = pd.read_csv(distance_csv, header = 0)
     dima = dima_filtered(df, dima)
 

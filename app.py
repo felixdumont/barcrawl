@@ -1,6 +1,7 @@
 # Import required libraries
-# Import required libraries
+
 import pickle
+from dateutil import parser
 import requests
 import config
 import copy
@@ -17,8 +18,8 @@ import dash_core_components as dcc
 import dash_html_components as html
 from plotly import graph_objs as go
 from colour import Color
+from models.models import crawl_model
 
-# Multi-dropdown options
 
 # get relative data folder
 PATH = pathlib.Path(__file__).parent
@@ -32,7 +33,7 @@ server = app.server
 app.config['suppress_callback_exceptions'] = True
 
 price_range_options = [
-    {"label": price_range, "value": price_range}
+    {"label": price_range, "value": len(price_range)}
     for price_range in ['$', '$$', '$$$', '$$$$', '$$$$$']]
 
 points = pickle.load(open(DATA_PATH.joinpath("points.pkl"), "rb"))
@@ -53,7 +54,7 @@ layout = dict(
         accesstoken=mapbox_access_token,
         style="light",
         center=dict(lon=-79.41, lat=43.76),
-        zoom=15,
+        zoom=18,
     ),
 )
 
@@ -198,7 +199,7 @@ app.layout = html.Div(
                                 html.Div([
                                     html.Label("Filter by budget range:"),
                                     dcc.Dropdown(
-                                        id="well_statuses",
+                                        id="budget_range",
                                         options=price_range_options,
                                         multi=True,
                                         value=[],
@@ -228,6 +229,14 @@ app.layout = html.Div(
                                             type='text',
                                             value=60,
                                             placeholder='Max total walking time'
+                                        )), ], className="six columns"),
+                                    html.Div([
+                                        html.Label("Max total waiting time"),
+                                        html.Div(dcc.Input(
+                                            id="max_waiting_time",
+                                            type='text',
+                                            value=30,
+                                            placeholder='Max total waiting time'
                                         )), ], className="six columns"),
                                     html.Div([
                                         html.Label("Max walking time between each bar"),
@@ -322,6 +331,17 @@ def fill_tab(tab):
                 [html.Div([
                     html.Br(),
                     html.Button('Calculate routes', id='go_button', className="button_submit"),
+                    html.Div(id='controls-container', children=[
+                        html.Img(
+                            src=app.get_asset_url("giphy_walk.gif"),
+                            id="walk-image",
+                            style={
+                                "height": "300px",
+                                "width": "auto",
+                                "margin-bottom": "0px",
+                                "margin-top": "0px",
+                            }, className="plotly-logo"
+                        ), ]),
                 ]),
                     html.Div([
                         dcc.Graph(id="histogram")])],
@@ -332,17 +352,6 @@ def fill_tab(tab):
                 html.Br(),
                 html.Button('Show route', id='details_button', className="button_submit"),
             ]),
-                html.Div(id='controls-container', children=[
-                    html.Img(
-                        src=app.get_asset_url("giphy_walk.gif"),
-                        id="walk-image",
-                        style={
-                            "height": "300px",
-                            "width": "auto",
-                            "margin-bottom": "0px",
-                            "margin-top": "0px",
-                        }, className="plotly-logo"
-                    ), ]),
                 html.Div(
                     [html.Div(html.H1(id='combinations'), className='pretty_container six columns'),
                      html.Div(
@@ -397,7 +406,7 @@ def get_start_coordinates(address, nclicks):
     r = requests.get(url, params=params)
     add = (r.json()['results'])
     coordinate_dict = add[0]['geometry']['location']
-    print(coordinate_dict)
+
     with open('data/start_coordinates', 'wb') as handle:
         pickle.dump(coordinate_dict, handle, protocol=pickle.HIGHEST_PROTOCOL)
     return coordinate_dict
@@ -409,19 +418,12 @@ def get_start_coordinates(address, nclicks):
     [Input("walking_time", "value"), Input("details_button", "n_clicks"), Input("crawl-tabs", "value")]
 )
 def make_main_figure(walking_time, go_button, tab):
-    # dff = filter_dataframe(df, well_statuses, well_types, hour_slider)
 
-    df = pd.read_csv('business.csv')
-    df_bars = df[(df['categories'].str.contains('Bars')
-                  | df['categories'].str.contains('Nightlife')
-                  | df['categories'].str.contains('Pubs'))
-                 & (~df['categories'].str.contains('Sushi Bars')
-                    & ~df['categories'].str.contains('Juice Bars'))]
-    dff = df_bars.loc[lambda f: f['city'] == 'Toronto'][:10]
-    dff['rounded_review'] = round(dff['stars'], 0)
     traces = []
     bar_num = 0
-
+    walking_time = float(walking_time)
+    solutions = pickle.load(open(DATA_PATH.joinpath("solutions.pkl"), "rb"))
+    solution = [x for x in solutions if abs(x.max_walking_time - walking_time) < 1][0]
     with open('data/start_coordinates', 'rb') as handle:
         start_coordinates = pickle.load(handle)
 
@@ -436,19 +438,21 @@ def make_main_figure(walking_time, go_button, tab):
     )
     traces.append(trace)
 
-    for name, dfff in dff.groupby("name"):
+    for bar in solution.bars:
         bar_num = bar_num + 1
         trace = dict(
             type="scattermapbox",
-            lon=dfff["longitude"],
-            lat=dfff["latitude"],
-            text=dfff['name'],
-            customdata=dfff["rounded_review"],
-            name="{}. {} ".format(bar_num, name),
+            lon=[bar.longitude],
+            lat=[bar.latitude],
+            text=bar.name,
+            customdata=bar.rating,
+            name="{}. {} ".format(bar_num, bar.name),
             marker=dict(size=12, opacity=0.6),
         )
         traces.append(trace)
 
+    avg_longitude = sum([bar.longitude for bar in solution.bars]) / bar_num
+    avg_latitude = sum([bar.latitude for bar in solution.bars]) / bar_num
     layout = dict(
         autosize=True,
         automargin=True,
@@ -461,7 +465,7 @@ def make_main_figure(walking_time, go_button, tab):
         mapbox=dict(
             accesstoken=mapbox_access_token,
             style="light",
-            center=dict(lon=dff['longitude'].mean(), lat=dff['latitude'].mean()),
+            center=dict(lon=avg_longitude, lat=avg_latitude),
             zoom=12,
         ),
     )
@@ -472,19 +476,26 @@ def make_main_figure(walking_time, go_button, tab):
 
 
 @app.callback(Output("combinations", "children"),
-              [Input("details_button", "n_clicks")],
-              [State("num_stops", "value")])
-def filter_dataframe(go, num_stops):
-    # TODO: Call model from here
-    return "Combinations considered: {:,}".format(num_stops * 1241245)
+              [Input("num_stops", "value"), Input("details_button", "n_clicks"), Input("crawl-tabs", "value")])
+def total_combinations(num_stops, go_button, tab):
+    with open('data/df_length.output', 'rb') as filehandle:
+        length = int(filehandle.read())
+
+    total_combinations = length
+    for i in range(num_stops - 1):
+        total_combinations = total_combinations * (length - i)
+    return "Combinations considered: {:,}".format(total_combinations)
 
 
 @app.callback(Output("avg_rating", "children"),
-              [Input("details_button", "n_clicks")],
-              [State("num_stops", "value")])
-def avg_rating(go, num_stops):
-    # TODO: Call model from here
-    return "Average rating: {}".format(round(float(num_stops), 1))
+              [Input("walking_time", "value"), Input("details_button", "n_clicks"), Input("crawl-tabs", "value")])
+def avg_rating(walking_time, go_button, tab):
+    walking_time = float(walking_time)
+    solutions = pickle.load(open(DATA_PATH.joinpath("solutions.pkl"), "rb"))
+
+    solution = [x for x in solutions if abs(x.max_walking_time - walking_time) < 1][0]
+
+    return "Average rating: {}".format(round(float(solution.avg_rating), 1))
 
 
 # Selected Data in the Histogram updates the Values in the DatePicker
@@ -505,7 +516,26 @@ def update_selected_data(clickData):
         return {"points": []}
 
 
-# Update Histogram Figure based on Month, Day and Times Chosen
+@app.callback(Output("crawl-tabs", "value"), [Input("apply_button", "n_clicks")])
+def change_focus(click):
+    if click:
+        return "tab-two"
+    return "tab-one"
+
+
+@app.callback(Output('controls-container', 'style'), [Input('go_button', 'n_clicks'),
+                                                      Input('histogram', 'figure')])
+def toggle_container(toggle_value, graph):
+
+    if toggle_value is None:
+        return {'display': 'none'}
+    if len(graph) > 1:
+        return {'display': 'none'}
+    if toggle_value >= 1:
+        return {'display': 'block'}
+    return {'display': 'none'}
+
+
 @app.callback(
     Output("histogram", "figure"),
     [
@@ -514,27 +544,68 @@ def update_selected_data(clickData):
     ],
     [
         State("walking_time", "value"),
+        State("crawl_date", "date"),
+        State("start_time", "value"),
+        State("end_time", "value"),
+        State("budget_range", "value"),
+        State("min_review_ct", "value"),
+        State("min_review", "value"),
+        State('single_walking_time', "value"),
+        State("num_stops", "value"),
+        State("max_waiting_time", "value")
     ],
-
 )
-def make_aggregate_figure(nclicks, clickdata, walking_distance):
-    print(nclicks)
+
+def get_pareto(nclicks, clickdata, total_max_walking_time, crawl_date, start_time, end_time, budget_range,
+               min_review_ct, min_review, single_walking_time, num_stops, max_waiting_time):
     if nclicks is None:
         return {}
-    else:
-        xVal = np.array([30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95])
-        yVal = np.array([2.5, 3.2, 3.5, 3.8, 4.0, 4.2, 4.4, 4.6, 4.7, 4.8, 4.8, 4.8, 4.8, 4.8])
+    if total_max_walking_time != '' and clickdata is None:
+        crawl_date = parser.parse(crawl_date)
+        total_max_walking_time = float(total_max_walking_time)/60
+        start_time = int(start_time)
+        if start_time < 5:
+            start_time = start_time + 24
+        end_time = int(end_time)
+        if end_time < 5:
+            end_time = end_time + 24
+        budget_range = [int(i) for i in budget_range]
+        min_review_ct = int(min_review_ct)
+        min_review = int(min_review)
+        single_walking_time = float(single_walking_time)/60
+        num_stops = int(num_stops)
+        max_waiting_time = int(max_waiting_time)
+        solutions = crawl_model(min_review_ct, min_review, crawl_date, budget_range, start_time, end_time, num_stops,
+                                total_max_walking_time, single_walking_time, max_waiting_time,
+                                'data/processed_data.csv', 'data/distances.csv')
 
-    colors = list(Color("blue").range_to(Color("green"), len(xVal)))
+        with open('data/solutions.pkl', 'wb') as handle:
+            pickle.dump(solutions, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
-    if walking_distance != '':
-        walking_distance = float(walking_distance)
-        colors = [(255 * c.rgb[0], 255 * c.rgb[1], 255 * c.rgb[2], 0.2) for c in colors]
-    else:
+        xVal = []
+        yVal = []
+        for solution in solutions:
+            xVal.append(solution.max_walking_time)
+            yVal.append(solution.avg_rating)
+        xVal = np.array(xVal)
+        yVal = np.array(yVal)
+        np.savetxt('data/xVal.out', xVal)
+        np.savetxt('data/yVal.out', yVal)
+
+        colors = list(Color("blue").range_to(Color("green"), len(xVal)))
+        walking_distance = float(total_max_walking_time)
         colors = [(255 * c.rgb[0], 255 * c.rgb[1], 255 * c.rgb[2], 0.5) for c in colors]
-    if walking_distance in xVal:
+    else:
+        xVal = np.loadtxt('data/xVal.out')
+        yVal = np.loadtxt('data/yVal.out')
+        colors = list(Color("blue").range_to(Color("green"), len(xVal)))
+        colors = [(255 * c.rgb[0], 255 * c.rgb[1], 255 * c.rgb[2], 0.2) for c in colors]
+
+    if total_max_walking_time != '' and clickdata is not None and float(total_max_walking_time) in xVal:
+        walking_distance = float(total_max_walking_time)
+
         c_selected = colors[np.where(xVal == walking_distance)[0][0]]
-        colors[np.where(xVal == walking_distance)[0][0]] = (c_selected[0], c_selected[1], c_selected[2], 0.5)
+        colors[np.where(xVal == walking_distance)[0][0]] = (c_selected[0], c_selected[1], c_selected[2], 1.0)
 
     colors = ['rgba({},{},{},{})'.format(round(a, 0), round(b, 0), round(c, 0), d) for (a, b, c, d) in colors]
     layout = go.Layout(
@@ -552,7 +623,7 @@ def make_aggregate_figure(nclicks, clickdata, walking_distance):
             title='Total time spent walking and waiting at bars (minutes)',
             range=[min(xVal), max(xVal)],
             showgrid=False,
-            nticks=25,
+            nticks=len(xVal),
             fixedrange=True,
             #  ticksuffix=":00",
         ),
@@ -595,27 +666,6 @@ def make_aggregate_figure(nclicks, clickdata, walking_distance):
         ],
         layout=layout,
     )
-
-
-@app.callback(Output("crawl-tabs", "value"), [Input("apply_button", "n_clicks")])
-def change_focus(click):
-    if click:
-        return "tab-two"
-    return "tab-one"
-
-
-@app.callback(Output('controls-container', 'style'), [Input('details_button', 'n_clicks'),
-                                                      Input('satellite_graph', 'figure')])
-def toggle_container(toggle_value, graph):
-    print(toggle_value)
-    if toggle_value is None:
-        return {'display': 'none'}
-    if len(graph) > 1:
-        return {'display': 'none'}
-    if toggle_value >= 1:
-        return {'display': 'block'}
-    return {'display': 'none'}
-
 
 # Main
 if __name__ == "__main__":
