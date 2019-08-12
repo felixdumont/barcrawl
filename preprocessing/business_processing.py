@@ -19,16 +19,29 @@ def one_time_filter(df, city):
     :return:
     """
     df_bars = df[(df['categories'].str.contains('Bars')
-                  | df['categories'].str.contains('Nightlife')
                   | df['categories'].str.contains('Pubs'))
                  & (~df['categories'].str.contains('Sushi Bars')
-                    & ~df['categories'].str.contains('Juice Bars'))]
+                    & ~df['categories'].str.contains('Juice Bars')
+                    & ~df['categories'].str.contains('Cinema')
+                    & ~df['categories'].str.contains('Adult Entertainment')
+                    & ~df['categories'].str.contains('Teacher')
+                    & ~df['categories'].str.contains('Steakhouses')
+                    & ~df['categories'].str.contains('Caterers')
+                    & ~df['name'].str.contains('Sex')
+                    & ~df['name'].str.contains('Pho')
+                    & ~df['name'].str.contains('Cafe')
+                    & ~df['name'].str.contains('The Jersey')
+                    & ~df['name'].str.contains('TGI')
+                    & ~df['name'].str.contains('Bar & Grill')
+                    & ~df['name'].str.contains('Restaurant')
+                    & ~df['name'].str.contains('Potbelly'))]
 
     df_bars = openfilter(df_bars)
     df_bars = separate_attributes(df_bars)
     df_bars = cityfilter(df_bars, city)
     df_bars = hoursbyday(df_bars)
     df_bars = getcolumns(df_bars)
+    df_bars = alcohol_filter(df_bars)
 
     return df_bars
 
@@ -47,6 +60,15 @@ def separate_attributes(df):
     attributes = df['attributes'].apply(pd.Series)
     df_att = pd.concat([df, attributes], axis=1).drop('attributes', axis=1)
     return df_att
+
+def alcohol_filter(df):
+    df=df[(df['Alcohol'].str.contains("u'full_bar'")
+    | df['Alcohol'].str.contains("'full_bar'")
+    | df['Alcohol'].str.contains("u'full_bar'")
+    |df['Alcohol'].str.contains("'beer_and_wine'")
+    |df['Alcohol'].str.contains("u'beer_and_wine'"))]
+    return df
+
 
 
 def format_hour(hour, close=False):
