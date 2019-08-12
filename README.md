@@ -22,6 +22,9 @@ Then, download the dataset https://www.yelp.com/dataset. Extract its content, th
 Open the .gitignore file (assuming the code has been cloned from the repository) and add "data/" to the list of excluded
  folders.
  
+ After this, you need to install Gurobi in your environment. While the environment is navigated, go to the Gurobi
+ installation folder and type "python setup.py install".
+ 
 Run the app
 
 ```
