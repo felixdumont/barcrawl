@@ -55,10 +55,7 @@ def get_optimal_route(df, start_time, end_time, bar_num, total_max_walking_time,
 
 
     y = []
-    x = [[0 for j in range(len(locations))] for i in range(len(locations))]
     z = [[[0 for j in range(len(locations))] for i in range(len(locations))] for k in range(bar_num - 1)]
-    #coordinates = list(zip(df.latitude, df.longitude))
-    #dima = generate_distance_matrix(coordinates, df['business_id'], 'manhattan')
 
     # create decision variables
     for loc in bar_ids:
@@ -173,6 +170,7 @@ def get_optimal_route(df, start_time, end_time, bar_num, total_max_walking_time,
     m.setParam('OutputFlag', 0)  # Also dual_subproblem.params.outputflag = 0
     m.setParam('TimeLimit', 30)
     m.setParam('MIPFocus', 1)
+    m.setParam('MIPGapAbs', 0.09)
     m.optimize()
     return m, y, z
 
@@ -200,6 +198,12 @@ def get_pareto_routes(df, start_time, end_time, bar_num, total_max_walking_time,
 
         locations = len(z_var[0])
         if model.status in [3,4,5]: # If infeasible or unbounded
+            continue
+        try:
+            obj_val = model.objval
+        except:
+            continue
+        if model.objval < 0 or model.objval > 5*bar_num:
             continue
         for k in range(len(z_var)):
             for i in range(locations):
