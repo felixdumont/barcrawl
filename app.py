@@ -571,7 +571,7 @@ def get_pareto(nclicks, clickdata, total_max_walking_time, crawl_date, start_tim
             end_time = end_time + 24
         budget_range = [int(i) for i in budget_range]
         min_review_ct = int(min_review_ct)
-        min_review = int(min_review)
+        min_review = float(min_review)
         single_walking_time = float(single_walking_time)/60
         num_stops = int(num_stops)
         max_waiting_time = int(max_waiting_time)
