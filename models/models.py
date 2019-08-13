@@ -1,4 +1,4 @@
-from models.processing import filter_dataset, load_dataset, dima_filtered
+from models.processing import filter_dataset, load_dataset, dima_filtered, closest_bar
 from dataclasses import dataclass
 from typing import List
 from datetime import datetime
@@ -24,7 +24,8 @@ class Solution:
     max_walking_time: float
 
 
-def get_optimal_route(df, start_time, end_time, bar_num, total_max_walking_time, max_walking_each, max_total_wait, dima):
+def get_optimal_route(df, start_time, end_time, bar_num, total_max_walking_time, max_walking_each, max_total_wait, dima,
+                      closest_bar_id):
     """
 
     :param df:
@@ -46,7 +47,13 @@ def get_optimal_route(df, start_time, end_time, bar_num, total_max_walking_time,
     close_times = df['close']
     wait_times = df['wait_time'] / 60
 
+    bar_num = bar_num + 1
+
+    if closest_bar_id is not None and closest_bar_id in bar_ids:
+        bar_num = bar_num + 1
+
     time_spent_each_bar = max(0.25, (end_time - start_time - total_max_walking_time - max_total_wait) / bar_num)
+
 
     y = []
     x = [[0 for j in range(len(locations))] for i in range(len(locations))]
@@ -72,7 +79,7 @@ def get_optimal_route(df, start_time, end_time, bar_num, total_max_walking_time,
 
     # max total walk time
     m.addConstr(quicksum([z[w][i][j] * dima[i][j]
-                          for i in range(len(locations))
+                           for i in range(len(locations))
                           for j in range(len(locations))
                           for w in range(bar_num - 1)]) <= total_max_walking_time)
 
@@ -87,6 +94,13 @@ def get_optimal_route(df, start_time, end_time, bar_num, total_max_walking_time,
     for k in range(bar_num - 1):
         for i in range(len(locations)):
             m.addConstr(z[k][i][i] == 0)
+
+    # Add starting location
+    if closest_bar_id is not None:
+        for i in range(len(locations)):
+            if bar_ids[i] == closest_bar_id:
+                m.addConstr(y[i] == 1)
+                m.addConstr(quicksum([z[0][i][j] for j in range(len(locations))]) == 1)
 
     # froms/tos upper bound
     for i in range(len(locations)):
@@ -164,7 +178,8 @@ def get_optimal_route(df, start_time, end_time, bar_num, total_max_walking_time,
     return m, y, z
 
 
-def get_pareto_routes(df, start_time, end_time, bar_num, total_max_walking_time, max_walking_each, max_total_wait, dima):
+def get_pareto_routes(df, start_time, end_time, bar_num, total_max_walking_time, max_walking_each, max_total_wait,
+                      dima, closest_bar_id=None):
     """
     Returns total_max_walking_time / 5 suggested routes (e.g. one for 0-5 mins walk, one for 5-10 mins walk, etc.).
     Pareto routes contain
@@ -182,7 +197,7 @@ def get_pareto_routes(df, start_time, end_time, bar_num, total_max_walking_time,
         bars = []
         print("Running Pareto for max walking time {}".format(max_walking_time))
         model, y_var, z_var = get_optimal_route(df, start_time, end_time, bar_num, max_walking_time / 60,
-                                               max_walking_each, max_total_wait, dima)
+                                               max_walking_each, max_total_wait, dima, closest_bar_id)
 
         locations = len(z_var[0])
         if model.status in [3,4,5]: # If infeasible or unbounded
@@ -219,7 +234,7 @@ def get_pareto_routes(df, start_time, end_time, bar_num, total_max_walking_time,
 
 
 def crawl_model(min_review_ct, min_rating, date, budget_range, start_time, end_time, bar_num, total_max_walking_time,
-                max_walking_each, max_total_wait, csv, distance_csv):
+                max_walking_each, max_total_wait, csv, distance_csv, start_coord):
     """
     :param date:
     :param start_time:
@@ -240,6 +255,7 @@ def crawl_model(min_review_ct, min_rating, date, budget_range, start_time, end_t
     length = str(df.shape[0])
     with open('data/df_length.output', 'w') as filehandle:
         filehandle.write(length)
+
     dima = pd.read_csv(distance_csv, header = 0)
     dima = dima_filtered(df, dima)
 
@@ -250,7 +266,12 @@ def crawl_model(min_review_ct, min_rating, date, budget_range, start_time, end_t
     #     optrout,z,y,x,dima = get_optimal_route(df, start_time, end_time, bar_num,
     #                                           total_max_walking_time, max_walking_each, max_total_wait)
     #   return optrout,z,y,x,dima
+
+    closest_bar_id = None
+    if start_coord is not None:
+        closest_bar_id = closest_bar(df, start_coord)
+        print(closest_bar_id)
     pareto_df = get_pareto_routes(df, start_time, end_time, bar_num, total_max_walking_time, max_walking_each,
-                                  max_total_wait, dima)
+                                  max_total_wait, dima, closest_bar_id)
 
     return pareto_df

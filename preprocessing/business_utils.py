@@ -40,7 +40,7 @@ def calculate_distance(loc1, loc2, method='euclidean'):
 
 def walking_time(dist, speed=4):
     """
-    Calculates the time required to walk the distance for a given speed.
+    Calcu lates the time required to walk the distance for a given speed.
     :param distance: Distance in km
     :param speed: Speed in km/hr (default value = 4 km/hr)
     :return: Walking time in minutes

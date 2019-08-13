@@ -353,9 +353,9 @@ def fill_tab(tab):
                 html.Button('Show route', id='details_button', className="button_submit"),
             ]),
                 html.Div(
-                    [html.Div(html.H1(id='combinations'), className='pretty_container six columns'),
+                    [html.Div(html.H2(id='combinations'), className='pretty_container six columns'),
                      html.Div(
-                         html.H1(id='avg_rating'), className='pretty_container six columns')]
+                         html.H2(id='avg_rating'), className='pretty_container six columns')]
                     , className='row twelve columns')
             ],
             id="info-container",
@@ -575,9 +575,10 @@ def get_pareto(nclicks, clickdata, total_max_walking_time, crawl_date, start_tim
         single_walking_time = float(single_walking_time)/60
         num_stops = int(num_stops)
         max_waiting_time = int(max_waiting_time)
+        start_coord = (43.6426, -79.3871)
         solutions = crawl_model(min_review_ct, min_review, crawl_date, budget_range, start_time, end_time, num_stops,
                                 total_max_walking_time, single_walking_time, max_waiting_time,
-                                'data/processed_data.csv', 'data/distances.csv')
+                                'data/processed_data.csv', 'data/distances.csv', start_coord)
 
         with open('data/solutions.pkl', 'wb') as handle:
             pickle.dump(solutions, handle, protocol=pickle.HIGHEST_PROTOCOL)

@@ -1,8 +1,7 @@
 # On the spot filtering. Different from the one-time preprocessing
-# On the spot filtering. Different from the one-time preprocessing
 from datetime import datetime
 import pandas as pd
-
+from preprocessing.business_utils import calculate_distance
 
 def load_dataset(csv):
     """
@@ -64,3 +63,14 @@ def dima_filtered(df, dima_df):
 
     dima = filtered.values.tolist()
     return dima
+
+
+def closest_bar(df, start_coord):
+    df_cp = df.copy()
+
+    df_cp['dist_from_start'] = df_cp.apply(lambda x: calculate_distance((x['latitude'], x['longitude']), start_coord),
+                                           axis=1)
+
+    business_id = df_cp.loc[(df_cp.dist_from_start == df_cp.dist_from_start.min()), 'business_id'].values[0]
+
+    return business_id

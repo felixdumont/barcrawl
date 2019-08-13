@@ -2,7 +2,7 @@ from datetime import datetime
 from models.models import crawl_model
 from preprocessing.business_processing import generate_full_csv
 from preprocessing.business_utils import calculate_distance, walking_time, generate_distance_matrix
-
+import pandas as pd
 
 percentiles = [0.5,0.6,0.7,0.8,0.9,1.0]
 wait_time_distr = [0,5,10,15,20,30]
@@ -22,8 +22,9 @@ max_walking_each = 0.25
 max_total_wait = 1
 csv = "data/processed_data.csv"
 distance_csv = "data/distances.csv"
+start_coord = (43.6426, -79.3871)
 solutions = crawl_model(min_review_ct, min_rating, date, budget_range, start_time, end_time, bar_num,
-                                 total_max_walking_time, max_walking_each, max_total_wait, csv, distance_csv)
+                                 total_max_walking_time, max_walking_each, max_total_wait, csv, distance_csv, start_coord)
 
 for solution in solutions:
     print(solution.total_walking_time)
