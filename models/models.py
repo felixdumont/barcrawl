@@ -23,9 +23,13 @@ class Solution:
     avg_rating: float # Optimal Gurobi obj. function
     max_walking_time: float
 
+def set_seed(model_1_y, model_1_z):
+    model_2_y = model_1_y
+    model_2_z = model_1_z
+    return model_2_y, model_2_z
 
 def get_optimal_route(df, start_time, end_time, bar_num, total_max_walking_time, max_walking_each, max_total_wait, dima,
-                      closest_bar_id):
+                      closest_bar_id, y_start, z_start):
     """
     :param df:
     :param start_time:
@@ -52,7 +56,6 @@ def get_optimal_route(df, start_time, end_time, bar_num, total_max_walking_time,
         bar_num = bar_num + 1
 
     time_spent_each_bar = max(0.25, (end_time - start_time - total_max_walking_time - max_total_wait) / bar_num)
-
 
     y = []
     z = [[[0 for j in range(len(locations))] for i in range(len(locations))] for k in range(bar_num - 1)]
@@ -170,6 +173,21 @@ def get_optimal_route(df, start_time, end_time, bar_num, total_max_walking_time,
     m.setParam('OutputFlag', 0)  # Also dual_subproblem.params.outputflag = 0
     m.setParam('TimeLimit', 30)
     m.setParam('MIPFocus', 1)
+
+    for i in range(len(y_start)):
+        try:
+            y[i].start = y_start[i].x
+        except:
+            y[i].start = y_start[i]
+
+    for i in range(len(y_start)):
+        for j in range(len(y_start)):
+            for k in range(len(z_start)):
+                try:
+                    z[k][i][j].start = z_start[k][i][j].x
+                except:
+                    z[k][i][j].start = z_start[k][i][j]
+
     m.setParam('MIPGapAbs', 0.09)
     m.optimize()
     return m, y, z
@@ -193,6 +211,11 @@ def get_pareto_routes(df, start_time, end_time, bar_num, total_max_walking_time,
     for max_walking_time in range(10, int(total_max_walking_time * 60), 10):
         bars = []
         print("Running Pareto for max walking time {}".format(max_walking_time))
+        if max_walking_time == 30:
+            y_start = [0 for i in range(len(df))]
+            z_start = [[[0 for j in range(len(df))] for i in range(len(df))] for k in range(bar_num - 1)]
+        else:
+            y_start, z_start = set_seed(y_var, z_var)
         model, y_var, z_var = get_optimal_route(df, start_time, end_time, bar_num, max_walking_time / 60,
                                                max_walking_each, max_total_wait, dima, closest_bar_id)
 
@@ -278,7 +301,7 @@ def crawl_model(min_review_ct, min_rating, date, budget_range, start_time, end_t
     print("{} bars after filtering".format(df.shape[0]))
 
     # TODO - remove filter
-    df = df[:100]
+    df = df[:50]
 
     pareto_df = get_pareto_routes(df, start_time, end_time, bar_num, total_max_walking_time, max_walking_each,
                                   max_total_wait, dima, closest_bar_id)
