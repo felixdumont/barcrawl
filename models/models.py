@@ -23,8 +23,13 @@ class Solution:
     avg_rating: float # Optimal Gurobi obj. function
     max_walking_time: float
 
+def set_seed(model_1_y, model_1_z):
+    model_2_y = model_1_y
+    model_2_z = model_1_z
+    return model_2_y, model_2_z
 
-def get_optimal_route(df, start_time, end_time, bar_num, total_max_walking_time, max_walking_each, max_total_wait, dima):
+def get_optimal_route(df, start_time, end_time, bar_num, total_max_walking_time, max_walking_each,
+                      max_total_wait, dima, y_start, z_start):
     """
 
     :param df:
@@ -157,9 +162,24 @@ def get_optimal_route(df, start_time, end_time, bar_num, total_max_walking_time,
 
     # Total wait time less than max allowed
     m.addConstr(quicksum([wait_times[i] * y[i] for i in range(len(locations))]) <= max_total_wait)
-    m.setParam('OutputFlag', 0)  # Also dual_subproblem.params.outputflag = 0
+    #m.setParam('OutputFlag', 0)  # Also dual_subproblem.params.outputflag = 0
     m.setParam('TimeLimit', 30)
     m.setParam('MIPFocus', 1)
+
+    for i in range(len(y_start)):
+        try:
+            y[i].start = y_start[i].x
+        except:
+            y[i].start = y_start[i]
+
+    for i in range(len(y_start)):
+        for j in range(len(y_start)):
+            for k in range(len(z_start)):
+                try:
+                    z[k][i][j].start = z_start[k][i][j].x
+                except:
+                    z[k][i][j].start = z_start[k][i][j]
+
     m.optimize()
     return m, y, z
 
@@ -178,11 +198,16 @@ def get_pareto_routes(df, start_time, end_time, bar_num, total_max_walking_time,
     """
     solutions = []
     wait_times = df['wait_time'] / 60
-    for max_walking_time in range(10, int(total_max_walking_time * 60), 5):
+    for max_walking_time in range(30, int(total_max_walking_time * 60), 5):
         bars = []
         print("Running Pareto for max walking time {}".format(max_walking_time))
+        if max_walking_time == 30:
+            y_start = [0 for i in range(len(df))]
+            z_start = [[[0 for j in range(len(df))] for i in range(len(df))] for k in range(bar_num - 1)]
+        else:
+            y_start, z_start = set_seed(y_var, z_var)
         model, y_var, z_var = get_optimal_route(df, start_time, end_time, bar_num, max_walking_time / 60,
-                                               max_walking_each, max_total_wait, dima)
+                                               max_walking_each, max_total_wait, dima, y_start, z_start)
 
         locations = len(z_var[0])
         if model.status in [3,4,5]: # If infeasible or unbounded
@@ -244,7 +269,7 @@ def crawl_model(min_review_ct, min_rating, date, budget_range, start_time, end_t
     dima = dima_filtered(df, dima)
 
     # TODO - remove filter
-    df = df[:50]
+    df = df[:200]
 
     #     Return one optimal solution
     #     optrout,z,y,x,dima = get_optimal_route(df, start_time, end_time, bar_num,
