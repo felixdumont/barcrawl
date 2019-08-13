@@ -253,7 +253,7 @@ app.layout = html.Div(
                                         html.Div(dcc.Input(
                                             id="min_review_ct",
                                             type='text',
-                                            value=5,
+                                            value=50,
                                             placeholder='Min number of reviews by bar'
                                         )), ], className="six columns"),
                                     html.Div([

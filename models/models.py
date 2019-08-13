@@ -27,7 +27,6 @@ class Solution:
 def get_optimal_route(df, start_time, end_time, bar_num, total_max_walking_time, max_walking_each, max_total_wait, dima,
                       closest_bar_id):
     """
-
     :param df:
     :param start_time:
     :param end_time:
@@ -193,7 +192,7 @@ def get_pareto_routes(df, start_time, end_time, bar_num, total_max_walking_time,
     """
     solutions = []
     wait_times = df['wait_time'] / 60
-    for max_walking_time in range(10, int(total_max_walking_time * 60), 5):
+    for max_walking_time in range(10, int(total_max_walking_time * 60), 10):
         bars = []
         print("Running Pareto for max walking time {}".format(max_walking_time))
         model, y_var, z_var = get_optimal_route(df, start_time, end_time, bar_num, max_walking_time / 60,
@@ -256,21 +255,27 @@ def crawl_model(min_review_ct, min_rating, date, budget_range, start_time, end_t
     with open('data/df_length.output', 'w') as filehandle:
         filehandle.write(length)
 
-    dima = pd.read_csv(distance_csv, header = 0)
-    dima = dima_filtered(df, dima)
+    dima_df = pd.read_csv(distance_csv, header = 0)
 
-    # TODO - remove filter
-    df = df[:50]
-
-    #     Return one optimal solution
-    #     optrout,z,y,x,dima = get_optimal_route(df, start_time, end_time, bar_num,
-    #                                           total_max_walking_time, max_walking_each, max_total_wait)
-    #   return optrout,z,y,x,dima
 
     closest_bar_id = None
     if start_coord is not None:
         closest_bar_id = closest_bar(df, start_coord)
-        print(closest_bar_id)
+        print("Closest bar is {}".format(closest_bar_id))
+
+    print("{} bars before filtering".format(df.shape[0]))
+    if closest_bar_id is not None:
+        bars_close_enough = list(dima_df.loc[lambda f: f[closest_bar_id] <= total_max_walking_time]['business_id'])
+
+        df = df[df['business_id'].isin(bars_close_enough)].reset_index()
+        #dima_df = dima_df[dima_df['business_id'].isin(bars_close_enough)]
+
+    dima = dima_filtered(df, dima_df)
+    print("{} bars after filtering".format(df.shape[0]))
+
+    # TODO - remove filter
+    df = df[:100]
+
     pareto_df = get_pareto_routes(df, start_time, end_time, bar_num, total_max_walking_time, max_walking_each,
                                   max_total_wait, dima, closest_bar_id)
 
