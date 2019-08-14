@@ -19,7 +19,8 @@ import dash_html_components as html
 from plotly import graph_objs as go
 from colour import Color
 from models.models import crawl_model
-
+from models.clustering import get_clusters
+import dash_daq as daq
 
 # get relative data folder
 PATH = pathlib.Path(__file__).parent
@@ -202,7 +203,7 @@ app.layout = html.Div(
                                         id="budget_range",
                                         options=price_range_options,
                                         multi=True,
-                                        value=[1,2],
+                                        value=[1, 2],
                                         className="dcc_control",
                                     ), ], className="eight columns"),
                                 html.Div([
@@ -226,7 +227,7 @@ app.layout = html.Div(
                                         html.Div(dcc.Input(
                                             id="max_walking_time",
                                             type='text',
-                                            value=40,
+                                            value=80,
                                             placeholder='Max total walking time'
                                         )), ], className="six columns"),
                                     html.Div([
@@ -234,7 +235,7 @@ app.layout = html.Div(
                                         html.Div(dcc.Input(
                                             id="max_waiting_time",
                                             type='text',
-                                            value=30,
+                                            value=60,
                                             placeholder='Max total waiting time'
                                         )), ], className="six columns"),
                                     html.Div([
@@ -242,7 +243,7 @@ app.layout = html.Div(
                                         html.Div(dcc.Input(
                                             id="single_walking_time",
                                             type='text',
-                                            value=10,
+                                            value=15,
                                             placeholder='Max walking time between each bar'
                                         )), ], className="six columns"),
                                 ], className="eleven columns"),
@@ -252,7 +253,7 @@ app.layout = html.Div(
                                         html.Div(dcc.Input(
                                             id="min_review_ct",
                                             type='text',
-                                            value=40,
+                                            value=30,
                                             placeholder='Min number of reviews by bar'
                                         )), ], className="six columns"),
                                     html.Div([
@@ -260,10 +261,21 @@ app.layout = html.Div(
                                         html.Div(dcc.Input(
                                             id="min_review",
                                             type='text',
-                                            value=4.1,
+                                            value=3.5,
                                             placeholder='Min bar review'
                                         )), ], className="six columns"),
+                                    html.Div([
+                                        html.Label("Use unsupervised learning?"),
+                                        html.Div(
+                                            daq.ToggleSwitch(
+                                                id="unsupervised",
+                                                value=False,
+                                                color="#407DFA",
+                                            ),
+                                        ),
+                                ], className="six columns"),
                                 ], className="eleven columns"),
+
                                 html.Div([
                                     html.Br(),
                                     html.Button('Apply filters', id='apply_button', className="button_submit"),
@@ -340,9 +352,25 @@ def fill_tab(tab):
                                 "margin-bottom": "0px",
                                 "margin-top": "0px",
                             }, className="plotly-logo"
-                        ), ]),
+                        ),
+                         html.Div(
+                             [dcc.Graph(id="clustering_graph")],
+                             className="pretty_container seven columns",
+                         ),
+                    ]),
                 ]),
+                    html.Br(),
+                    html.Br(),
                     html.Div([
+                        html.Br(),
+                        html.Br(),
+                        html.Br(),
+                        html.Br(),
+                        html.Br(),
+                        html.Br(),
+                        html.Br(),
+                        html.Br(),
+                        html.Br(),
                         dcc.Graph(id="histogram")])],
                 className="row twelve columns")]
     elif tab == "tab-three":
@@ -380,6 +408,7 @@ def fill_tab(tab):
             )]
 
     return [
+
         html.Label(
             "Welcome to the bar crawl simulator. Please select your desired settings on the left and apply the filters."),
         html.Img(
@@ -406,7 +435,6 @@ def human_format(num):
     [Input("walking_time", "value"), Input("details_button", "n_clicks"), Input("crawl-tabs", "value")]
 )
 def make_main_figure(walking_time, go_button, tab):
-
     traces = []
     bar_num = 0
     walking_time = float(walking_time)
@@ -463,6 +491,50 @@ def make_main_figure(walking_time, go_button, tab):
     return figure
 
 
+# Selectors -> main graph
+@app.callback(
+    Output("clustering_graph", "figure"), [Input("go_button", "n_clicks")]
+)
+def make_main_figure(n_clicks):
+    traces = []
+    df = pd.read_csv('data/processed_data.csv')
+    coordinates = list(zip(df.latitude, df.longitude))
+    df['cluster'] = get_clusters(coordinates, df['business_id'])
+    df['cluster_name'] = 'Cluster # ' + df['cluster'].astype(str)
+    for name, dff in df.groupby("cluster_name"):
+        trace = dict(
+            type="scattermapbox",
+            lon=dff['longitude'],
+            lat=dff['latitude'],
+            text=dff['cluster_name'],
+            customdata=dff['cluster_name'],
+            name=name,
+            marker=dict(size=12, opacity=0.6),
+        )
+        traces.append(trace)
+
+    layout = dict(
+        autosize=True,
+        automargin=True,
+        margin=dict(l=30, r=30, b=20, t=40),
+        hoverinfo="name",
+        plot_bgcolor="#F9F9F9",
+        paper_bgcolor="#F9F9F9",
+        legend=dict(font=dict(size=10), orientation="h"),
+        title="Satellite Overview",
+        mapbox=dict(
+            accesstoken=mapbox_access_token,
+            style="light",
+            center=dict(lon=-79.3871, lat=43.6826),
+            zoom=11,
+        ),
+    )
+
+    figure = dict(data=traces, layout=layout)
+
+    return figure
+
+
 @app.callback(Output("combinations", "children"),
               [Input("num_stops", "value"), Input("details_button", "n_clicks"), Input("crawl-tabs", "value")])
 def total_combinations(num_stops, go_button, tab):
@@ -494,7 +566,7 @@ def total_walk(walking_time, go_button, tab):
 
     solution = [x for x in solutions if abs(x.max_walking_time - walking_time) < 1][0]
 
-    return "Total walking time: {} mins".format(round(float(solution.total_walking_time)*60, 1))
+    return "Total walking time: {} mins".format(round(float(solution.total_walking_time) * 60, 1))
 
 
 @app.callback(Output("total_waiting_time_act", "children"),
@@ -505,7 +577,7 @@ def total_wait(walking_time, go_button, tab):
 
     solution = [x for x in solutions if abs(x.max_walking_time - walking_time) < 1][0]
 
-    return "Total waiting time: {} mins".format(round(float(solution.total_waiting_time)*60, 1))
+    return "Total waiting time: {} mins".format(round(float(solution.total_waiting_time) * 60, 1))
 
 
 # Selected Data in the Histogram updates the Values in the DatePicker
@@ -533,7 +605,10 @@ def change_focus(click, address):
         params = {"address": address, "key": config.KEY}
         r = requests.get(url, params=params)
         add = (r.json()['results'])
+        # try:
         coordinate_dict = add[0]['geometry']['location']
+        # except:
+        #    coordinate_dict = {'lat':43.6426, 'lng':-79.3871}
         print("Start coordinates {} {}".format(coordinate_dict['lat'], coordinate_dict['lng']))
 
         with open('data/start_coordinates', 'wb') as handle:
@@ -545,7 +620,6 @@ def change_focus(click, address):
 @app.callback(Output('controls-container', 'style'), [Input('go_button', 'n_clicks'),
                                                       Input('histogram', 'figure')])
 def toggle_container(toggle_value, graph):
-
     if toggle_value is None:
         return {'display': 'none'}
     if len(graph) > 1:
@@ -562,7 +636,7 @@ def toggle_container(toggle_value, graph):
         Input("histogram", "clickData")
     ],
     [
-        State("walking_time", "value"),
+        State("max_walking_time", "value"),
         State("crawl_date", "date"),
         State("start_time", "value"),
         State("end_time", "value"),
@@ -571,17 +645,21 @@ def toggle_container(toggle_value, graph):
         State("min_review", "value"),
         State('single_walking_time', "value"),
         State("num_stops", "value"),
-        State("max_waiting_time", "value")
+        State("max_waiting_time", "value"),
+        State("unsupervised", "value"),
+        State("walking_time", "value")
     ],
 )
-
 def get_pareto(nclicks, clickdata, total_max_walking_time, crawl_date, start_time, end_time, budget_range,
-               min_review_ct, min_review, single_walking_time, num_stops, max_waiting_time):
+               min_review_ct, min_review, single_walking_time, num_stops, max_waiting_time, unsupervised,
+               selected_walking_time):
+
     if nclicks is None:
         return {}
+
     if total_max_walking_time != '' and clickdata is None:
         crawl_date = parser.parse(crawl_date)
-        total_max_walking_time = float(total_max_walking_time)/60
+        total_max_walking_time = float(total_max_walking_time) / 60.0
         start_time = int(start_time)
         if start_time < 5:
             start_time = start_time + 24
@@ -591,32 +669,32 @@ def get_pareto(nclicks, clickdata, total_max_walking_time, crawl_date, start_tim
         budget_range = [int(i) for i in budget_range]
         min_review_ct = int(min_review_ct)
         min_review = float(min_review)
-        single_walking_time = float(single_walking_time)/60
+        single_walking_time = float(single_walking_time) / 60
         num_stops = int(num_stops)
-        max_waiting_time = int(max_waiting_time)/60
-
+        max_waiting_time = int(max_waiting_time) / 60
 
         with open('data/start_coordinates', 'rb') as handle:
-             start_coordinates = pickle.load(handle)
+            start_coordinates = pickle.load(handle)
         start_coord = (start_coordinates['lat'], start_coordinates['lng'])
         print(start_coord)
         solutions = crawl_model(min_review_ct, min_review, crawl_date, budget_range, start_time, end_time, num_stops,
                                 total_max_walking_time, single_walking_time, max_waiting_time,
-                                'data/processed_data.csv', 'data/distances.csv', start_coord)
+                                'data/processed_data.csv', 'data/distances.csv', start_coord, unsupervised)
 
         with open('data/solutions.pkl', 'wb') as handle:
             pickle.dump(solutions, handle, protocol=pickle.HIGHEST_PROTOCOL)
-
         xVal = []
         yVal = []
         for solution in solutions:
+            print(solution.max_walking_time)
             xVal.append(solution.max_walking_time)
-            yVal.append(solution.avg_rating)
+            yVal.append(round(solution.avg_rating, 1))
         xVal = np.array(xVal)
         yVal = np.array(yVal)
         np.savetxt('data/xVal.out', xVal)
         np.savetxt('data/yVal.out', yVal)
-
+        if len(xVal) == 0:
+            return {}
         colors = list(Color("blue").range_to(Color("green"), len(xVal)))
         walking_distance = float(total_max_walking_time)
         colors = [(255 * c.rgb[0], 255 * c.rgb[1], 255 * c.rgb[2], 0.5) for c in colors]
@@ -691,6 +769,7 @@ def get_pareto(nclicks, clickdata, total_max_walking_time, crawl_date, start_tim
         ],
         layout=layout,
     )
+
 
 # Main
 if __name__ == "__main__":

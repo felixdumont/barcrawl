@@ -1,7 +1,7 @@
+import numpy as np
 import math
 from geopy import distance
 import pandas as pd
-
 
 def calculate_distance(loc1, loc2, method='euclidean'):
     """
@@ -64,3 +64,4 @@ def generate_distance_matrix(locations, names, method='euclidean'):
             dist_matrix[row][col] = walking_time(calculate_distance(locations[row], locations[col], method))
 
     return pd.DataFrame(dist_matrix, columns=names, index=names)
+

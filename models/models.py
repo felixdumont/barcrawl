@@ -4,6 +4,7 @@ from typing import List
 from datetime import datetime
 import pandas as pd
 from gurobipy import *
+from models.clustering import get_clusters
 
 
 @dataclass
@@ -51,10 +52,7 @@ def get_optimal_route(df, start_time, end_time, bar_num, total_max_walking_time,
     close_times = df['close']
     wait_times = df['wait_time'] / 60
 
-    bar_num = bar_num + 1
-
-    if closest_bar_id is not None and closest_bar_id in bar_ids:
-        bar_num = bar_num + 1
+    #bar_num = bar_num + 1
 
     time_spent_each_bar = max(0.25, (end_time - start_time - total_max_walking_time - max_total_wait) / bar_num)
 
@@ -109,7 +107,7 @@ def get_optimal_route(df, start_time, end_time, bar_num, total_max_walking_time,
         m.addConstr(quicksum([z[k][i][j] for k in range(bar_num - 1) for j in range(len(locations))])
                     + quicksum([z[k][j][i] for k in range(bar_num - 1) for j in range(len(locations))])
                     <= bigm * y[i])
-    print(1)
+
     # froms/tos lower bound
     for i in range(len(locations)):
         m.addConstr(quicksum([z[k][i][j] for k in range(bar_num - 1) for j in range(len(locations))])
@@ -146,7 +144,7 @@ def get_optimal_route(df, start_time, end_time, bar_num, total_max_walking_time,
             [open_times[i] * quicksum(z[zed][i])
              for i in range(len(locations))]))
 
-    print(2)
+
     m.addConstr(start_time + (bar_num - 1) * time_spent_each_bar + quicksum([z[w][i][j] * (dima[i][j] + wait_times[i])
                                                                    for i in range(len(locations))
                                                                    for j in range(len(locations))
@@ -175,7 +173,7 @@ def get_optimal_route(df, start_time, end_time, bar_num, total_max_walking_time,
                                                                    for i in range(len(locations))
                                                                    for j in range(len(locations))
                                                                    for w in range(bar_num - 1)]) <= end_time)
-    print(3)
+
     # Total wait time less than max allowed
     m.addConstr(quicksum([wait_times[i] * y[i] for i in range(len(locations))]) <= max_total_wait)
     #m.setParam('OutputFlag', 0)  # Also dual_subproblem.params.outputflag = 0
@@ -196,7 +194,7 @@ def get_optimal_route(df, start_time, end_time, bar_num, total_max_walking_time,
                 except:
                     z[k][i][j].start = z_start[k][i][j]
 
-    m.setParam('MIPGapAbs', 0.09)
+    #m.setParam('MIPGapAbs', 0.09*bar_num)
     print("Start optimizing")
     m.optimize()
     return m, y, z
@@ -217,7 +215,7 @@ def get_pareto_routes(df, start_time, end_time, bar_num, total_max_walking_time,
     """
     solutions = []
     wait_times = df['wait_time'] / 60
-    min_time = 10
+    min_time = 20
     last_success = 0
     for max_walking_time in range(min_time, int(total_max_walking_time * 60), 10):
         bars = []
@@ -234,7 +232,7 @@ def get_pareto_routes(df, start_time, end_time, bar_num, total_max_walking_time,
         if model.status in [3,4,5]: # If infeasible or unbounded
             continue
         try:
-            obj_val = model.objval
+            obj_val = float(model.objval)
         except:
             continue
         if model.objval < 0 or model.objval > 5*bar_num:
@@ -272,7 +270,7 @@ def get_pareto_routes(df, start_time, end_time, bar_num, total_max_walking_time,
 
 
 def crawl_model(min_review_ct, min_rating, date, budget_range, start_time, end_time, bar_num, total_max_walking_time,
-                max_walking_each, max_total_wait, csv, distance_csv, start_coord):
+                max_walking_each, max_total_wait, csv, distance_csv, start_coord, create_clusters):
     """
     :param date:
     :param start_time:
@@ -290,6 +288,12 @@ def crawl_model(min_review_ct, min_rating, date, budget_range, start_time, end_t
     df = load_dataset(csv)
     df = filter_dataset(df, min_review_ct, min_rating, date, budget_range).reset_index()
 
+    if create_clusters:
+        coordinates = list(zip(df.latitude, df.longitude))
+        df['cluster'] = get_clusters(coordinates, df['business_id'])
+    else:
+        df['cluster'] = 0
+
     length = str(df.shape[0])
     with open('data/df_length.output', 'w') as filehandle:
         filehandle.write(length)
@@ -300,21 +304,23 @@ def crawl_model(min_review_ct, min_rating, date, budget_range, start_time, end_t
     closest_bar_id = None
     if start_coord is not None:
         closest_bar_id = closest_bar(df[:max_index], start_coord)
+        closest_bar_cluster = df.loc[lambda f: f['business_id'] == closest_bar_id]['cluster'].min()
+
         print("Closest bar is {}".format(closest_bar_id))
 
     print("{} bars before filtering".format(df.shape[0]))
     if closest_bar_id is not None:
         bars_close_enough = list(dima_df.loc[lambda f: f[closest_bar_id] <= total_max_walking_time]['business_id'])
 
-        df = df[df['business_id'].isin(bars_close_enough)].reset_index()
-        #dima_df = dima_df[dima_df['business_id'].isin(bars_close_enough)]
+        df = df[(df['business_id'].isin(bars_close_enough)) & (df['cluster'] == closest_bar_cluster)
+        ].reset_index()
 
     dima = dima_filtered(df, dima_df)
     print("{} bars after filtering".format(df.shape[0]))
 
     # TODO - remove filter
     df = df[:max_index]
-
+    print("WALK {}".format(total_max_walking_time))
     pareto_df = get_pareto_routes(df, start_time, end_time, bar_num, total_max_walking_time, max_walking_each,
                                   max_total_wait, dima, closest_bar_id)
 
