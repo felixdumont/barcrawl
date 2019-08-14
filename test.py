@@ -22,7 +22,7 @@ end_time = 22
 bar_num = 6
 total_max_walking_time = 1
 max_walking_each = 0.25
-max_total_wait = 0.5
+max_total_wait = 0.8
 csv = "data/processed_data.csv"
 distance_csv = "data/distances.csv"
 start_coord = (43.6426, -79.3871)
@@ -31,6 +31,7 @@ solutions = crawl_model(min_review_ct, min_rating, date, budget_range, start_tim
 
 for solution in solutions:
     print("--- Walking time is {}".format(solution.total_walking_time))
+    print("--- Waiting time is {}".format(solution.total_waiting_time))
     for bar in solution.bars:
         print(bar.name + "; " + bar.id)
 

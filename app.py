@@ -202,7 +202,7 @@ app.layout = html.Div(
                                         id="budget_range",
                                         options=price_range_options,
                                         multi=True,
-                                        value=[],
+                                        value=[1,2],
                                         className="dcc_control",
                                     ), ], className="eight columns"),
                                 html.Div([
@@ -227,7 +227,7 @@ app.layout = html.Div(
                                         html.Div(dcc.Input(
                                             id="max_walking_time",
                                             type='text',
-                                            value=60,
+                                            value=40,
                                             placeholder='Max total walking time'
                                         )), ], className="six columns"),
                                     html.Div([
@@ -243,7 +243,7 @@ app.layout = html.Div(
                                         html.Div(dcc.Input(
                                             id="single_walking_time",
                                             type='text',
-                                            value=15,
+                                            value=10,
                                             placeholder='Max walking time between each bar'
                                         )), ], className="six columns"),
                                 ], className="eleven columns"),
@@ -253,7 +253,7 @@ app.layout = html.Div(
                                         html.Div(dcc.Input(
                                             id="min_review_ct",
                                             type='text',
-                                            value=50,
+                                            value=40,
                                             placeholder='Min number of reviews by bar'
                                         )), ], className="six columns"),
                                     html.Div([
@@ -261,7 +261,7 @@ app.layout = html.Div(
                                         html.Div(dcc.Input(
                                             id="min_review",
                                             type='text',
-                                            value=3,
+                                            value=3.5,
                                             placeholder='Min bar review'
                                         )), ], className="six columns"),
                                 ], className="eleven columns"),
@@ -353,9 +353,14 @@ def fill_tab(tab):
                 html.Button('Show route', id='details_button', className="button_submit"),
             ]),
                 html.Div(
-                    [html.Div(html.H2(id='combinations'), className='pretty_container six columns'),
+                    [html.Div(html.H3(id='combinations'), className='pretty_container six columns'),
                      html.Div(
-                         html.H2(id='avg_rating'), className='pretty_container six columns')]
+                         html.H3(id='avg_rating'), className='pretty_container six columns')]
+                    , className='row twelve columns'),
+                html.Div(
+                    [html.Div(html.H3(id='total_walking_time_act'), className='pretty_container six columns'),
+                     html.Div(
+                         html.H3(id='total_waiting_time_act'), className='pretty_container six columns')]
                     , className='row twelve columns')
             ],
             id="info-container",
@@ -394,22 +399,6 @@ def human_format(num):
     magnitude = 1  # int(math.log(num, 1000))
     mantissa = str(int(num / (1000 ** magnitude)))
     return mantissa + ["", "K", "M", "G", "T", "P"][magnitude]
-
-
-@app.callback(
-    Output("start_coordinates", "value"),
-    [Input("address", "value"), Input("details_button", "n_clicks")]
-)
-def get_start_coordinates(address, nclicks):
-    url = "https://maps.googleapis.com/maps/api/geocode/json"
-    params = {"address": address, "key": config.KEY}
-    r = requests.get(url, params=params)
-    add = (r.json()['results'])
-    coordinate_dict = add[0]['geometry']['location']
-
-    with open('data/start_coordinates', 'wb') as handle:
-        pickle.dump(coordinate_dict, handle, protocol=pickle.HIGHEST_PROTOCOL)
-    return coordinate_dict
 
 
 # Selectors -> main graph
@@ -498,6 +487,28 @@ def avg_rating(walking_time, go_button, tab):
     return "Average rating: {}".format(round(float(solution.avg_rating), 1))
 
 
+@app.callback(Output("total_walking_time_act", "children"),
+              [Input("walking_time", "value"), Input("details_button", "n_clicks"), Input("crawl-tabs", "value")])
+def total_walk(walking_time, go_button, tab):
+    walking_time = float(walking_time)
+    solutions = pickle.load(open(DATA_PATH.joinpath("solutions.pkl"), "rb"))
+
+    solution = [x for x in solutions if abs(x.max_walking_time - walking_time) < 1][0]
+
+    return "Total walking time: {} mins".format(round(float(solution.total_walking_time)*60, 1))
+
+
+@app.callback(Output("total_waiting_time_act", "children"),
+              [Input("walking_time", "value"), Input("details_button", "n_clicks"), Input("crawl-tabs", "value")])
+def total_wait(walking_time, go_button, tab):
+    walking_time = float(walking_time)
+    solutions = pickle.load(open(DATA_PATH.joinpath("solutions.pkl"), "rb"))
+
+    solution = [x for x in solutions if abs(x.max_walking_time - walking_time) < 1][0]
+
+    return "Total waiting time: {} mins".format(round(float(solution.total_waiting_time)*60, 1))
+
+
 # Selected Data in the Histogram updates the Values in the DatePicker
 @app.callback(
     Output("walking_time", "value"),
@@ -516,9 +527,18 @@ def update_selected_data(clickData):
         return {"points": []}
 
 
-@app.callback(Output("crawl-tabs", "value"), [Input("apply_button", "n_clicks")])
-def change_focus(click):
+@app.callback(Output("crawl-tabs", "value"), [Input("apply_button", "n_clicks")], [State("address", "value")])
+def change_focus(click, address):
     if click:
+        url = "https://maps.googleapis.com/maps/api/geocode/json"
+        params = {"address": address, "key": config.KEY}
+        r = requests.get(url, params=params)
+        add = (r.json()['results'])
+        coordinate_dict = add[0]['geometry']['location']
+        print("Start coordinates {} {}".format(coordinate_dict['lat'], coordinate_dict['lng']))
+
+        with open('data/start_coordinates', 'wb') as handle:
+            pickle.dump(coordinate_dict, handle, protocol=pickle.HIGHEST_PROTOCOL)
         return "tab-two"
     return "tab-one"
 
@@ -574,8 +594,13 @@ def get_pareto(nclicks, clickdata, total_max_walking_time, crawl_date, start_tim
         min_review = float(min_review)
         single_walking_time = float(single_walking_time)/60
         num_stops = int(num_stops)
-        max_waiting_time = int(max_waiting_time)
-        start_coord = (43.6426, -79.3871)
+        max_waiting_time = int(max_waiting_time)/60
+
+
+        with open('data/start_coordinates', 'rb') as handle:
+             start_coordinates = pickle.load(handle)
+        start_coord = (start_coordinates['lat'], start_coordinates['lng'])
+        print(start_coord)
         solutions = crawl_model(min_review_ct, min_review, crawl_date, budget_range, start_time, end_time, num_stops,
                                 total_max_walking_time, single_walking_time, max_waiting_time,
                                 'data/processed_data.csv', 'data/distances.csv', start_coord)
@@ -621,7 +646,7 @@ def get_pareto(nclicks, clickdata, total_max_walking_time, crawl_date, start_tim
         title="Select desired walking and waiting time / rating combination",
         font=dict(color="black"),
         xaxis=dict(
-            title='Total time spent walking and waiting at bars (minutes)',
+            title='Total time spent walking between bars (minutes)',
             range=[min(xVal), max(xVal)],
             showgrid=False,
             nticks=len(xVal),

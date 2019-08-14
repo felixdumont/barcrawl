@@ -33,6 +33,7 @@ def one_time_filter(df, city):
                     & ~df['name'].str.contains('The Jersey')
                     & ~df['name'].str.contains('TGI')
                     & ~df['name'].str.contains('Bar & Grill')
+                    & ~df['name'].str.contains('Coffee')
                     & ~df['name'].str.contains('Restaurant')
                     & ~df['name'].str.contains('Potbelly')
                     & ~df['name'].str.contains('Oyster'))]

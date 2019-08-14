@@ -23,6 +23,7 @@ class Solution:
     avg_rating: float # Optimal Gurobi obj. function
     max_walking_time: float
 
+
 def set_seed(model_1_y, model_1_z):
     model_2_y = model_1_y
     model_2_z = model_1_z
@@ -39,7 +40,7 @@ def get_optimal_route(df, start_time, end_time, bar_num, total_max_walking_time,
     :param max_walking_each:
     :return: A Solution class object representing the optimal solution
     """
-
+    print("start Gurobi")
     # parameters
     bigm = 999999
     m = Model("opt_route")
@@ -106,7 +107,7 @@ def get_optimal_route(df, start_time, end_time, bar_num, total_max_walking_time,
         m.addConstr(quicksum([z[k][i][j] for k in range(bar_num - 1) for j in range(len(locations))])
                     + quicksum([z[k][j][i] for k in range(bar_num - 1) for j in range(len(locations))])
                     <= bigm * y[i])
-
+    print(1)
     # froms/tos lower bound
     for i in range(len(locations)):
         m.addConstr(quicksum([z[k][i][j] for k in range(bar_num - 1) for j in range(len(locations))])
@@ -141,7 +142,9 @@ def get_optimal_route(df, start_time, end_time, bar_num, total_max_walking_time,
                                                                        for w in range(zed)]) >= quicksum(
             [open_times[i] * quicksum(z[zed][i])
              for i in range(len(locations))]))
-    m.addConstr(start_time + zed * time_spent_each_bar + quicksum([z[w][i][j] * (dima[i][j] + wait_times[i])
+
+    print(2)
+    m.addConstr(start_time + (bar_num - 1) * time_spent_each_bar + quicksum([z[w][i][j] * (dima[i][j] + wait_times[i])
                                                                    for i in range(len(locations))
                                                                    for j in range(len(locations))
                                                                    for w in range(bar_num - 1)]) >=
@@ -155,7 +158,7 @@ def get_optimal_route(df, start_time, end_time, bar_num, total_max_walking_time,
                                                                        for w in range(zed)]) <= quicksum(
             [close_times[i] * quicksum(z[zed][i])
              for i in range(len(locations))]))
-    m.addConstr(start_time + zed * time_spent_each_bar + quicksum([z[w][i][j] * (dima[i][j] + wait_times[i])
+    m.addConstr(start_time + (bar_num - 1)  * time_spent_each_bar + quicksum([z[w][i][j] * (dima[i][j] + wait_times[i])
                                                                    for i in range(len(locations))
                                                                    for j in range(len(locations))
                                                                    for w in range(bar_num - 1)]) <=
@@ -163,23 +166,24 @@ def get_optimal_route(df, start_time, end_time, bar_num, total_max_walking_time,
                           for j in range(len(locations))]))
 
     # Must exit last bar before close time
-    m.addConstr(start_time + zed * time_spent_each_bar + quicksum([z[w][i][j] * (dima[i][j] + wait_times[i])
+    m.addConstr(start_time + (bar_num - 1) * time_spent_each_bar + quicksum([z[w][i][j] * (dima[i][j] + wait_times[i])
                                                                    for i in range(len(locations))
                                                                    for j in range(len(locations))
                                                                    for w in range(bar_num - 1)]) <= end_time)
-
+    print(3)
     # Total wait time less than max allowed
     m.addConstr(quicksum([wait_times[i] * y[i] for i in range(len(locations))]) <= max_total_wait)
-    m.setParam('OutputFlag', 0)  # Also dual_subproblem.params.outputflag = 0
+    #m.setParam('OutputFlag', 0)  # Also dual_subproblem.params.outputflag = 0
     m.setParam('TimeLimit', 30)
     m.setParam('MIPFocus', 1)
+    print(4)
 
     for i in range(len(y_start)):
         try:
             y[i].start = y_start[i].x
         except:
             y[i].start = y_start[i]
-
+    print(5)
     for i in range(len(y_start)):
         for j in range(len(y_start)):
             for k in range(len(z_start)):
@@ -189,6 +193,7 @@ def get_optimal_route(df, start_time, end_time, bar_num, total_max_walking_time,
                     z[k][i][j].start = z_start[k][i][j]
 
     m.setParam('MIPGapAbs', 0.09)
+    print("Start optimizing")
     m.optimize()
     return m, y, z
 
@@ -208,16 +213,18 @@ def get_pareto_routes(df, start_time, end_time, bar_num, total_max_walking_time,
     """
     solutions = []
     wait_times = df['wait_time'] / 60
-    for max_walking_time in range(10, int(total_max_walking_time * 60), 10):
+    min_time = 10
+    last_success = 0
+    for max_walking_time in range(min_time, int(total_max_walking_time * 60), 10):
         bars = []
         print("Running Pareto for max walking time {}".format(max_walking_time))
-        if max_walking_time == 30:
+        if max_walking_time == min_time or last_success == 0:
             y_start = [0 for i in range(len(df))]
             z_start = [[[0 for j in range(len(df))] for i in range(len(df))] for k in range(bar_num - 1)]
         else:
             y_start, z_start = set_seed(y_var, z_var)
         model, y_var, z_var = get_optimal_route(df, start_time, end_time, bar_num, max_walking_time / 60,
-                                               max_walking_each, max_total_wait, dima, closest_bar_id)
+                                               max_walking_each, max_total_wait, dima, closest_bar_id, y_start, z_start)
 
         locations = len(z_var[0])
         if model.status in [3,4,5]: # If infeasible or unbounded
@@ -228,6 +235,7 @@ def get_pareto_routes(df, start_time, end_time, bar_num, total_max_walking_time,
             continue
         if model.objval < 0 or model.objval > 5*bar_num:
             continue
+        last_success = 1
         for k in range(len(z_var)):
             for i in range(locations):
                 for j in range(locations):
@@ -283,11 +291,11 @@ def crawl_model(min_review_ct, min_rating, date, budget_range, start_time, end_t
         filehandle.write(length)
 
     dima_df = pd.read_csv(distance_csv, header = 0)
-
+    max_index = 10000
 
     closest_bar_id = None
     if start_coord is not None:
-        closest_bar_id = closest_bar(df, start_coord)
+        closest_bar_id = closest_bar(df[:max_index], start_coord)
         print("Closest bar is {}".format(closest_bar_id))
 
     print("{} bars before filtering".format(df.shape[0]))
@@ -301,7 +309,7 @@ def crawl_model(min_review_ct, min_rating, date, budget_range, start_time, end_t
     print("{} bars after filtering".format(df.shape[0]))
 
     # TODO - remove filter
-    df = df[:50]
+    df = df[:max_index]
 
     pareto_df = get_pareto_routes(df, start_time, end_time, bar_num, total_max_walking_time, max_walking_each,
                                   max_total_wait, dima, closest_bar_id)
