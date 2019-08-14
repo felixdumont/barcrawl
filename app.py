@@ -137,7 +137,8 @@ app.layout = html.Div(
                                 html.Div([
                                     html.Div([
                                         html.Label("Enter a start address (optional):"),
-                                        dcc.Textarea(id="address")
+                                        dcc.Textarea(id="address",
+                                                     value="686 Queen St W, Toronto, ON M6J 1E7, Canada"),
                                     ], className="mobile_forms"),
                                     html.Div([
                                         html.Label(
@@ -203,7 +204,7 @@ app.layout = html.Div(
                                         id="budget_range",
                                         options=price_range_options,
                                         multi=True,
-                                        value=[1, 2],
+                                        value=[1, 2, 3, 4, 5],
                                         className="dcc_control",
                                     ), ], className="eight columns"),
                                 html.Div([
@@ -213,7 +214,7 @@ app.layout = html.Div(
                                             id='num_stops',
                                             min=0,
                                             max=8,
-                                            value=4,
+                                            value=5,
                                             marks={
                                                 2: {'label': '2'},
                                                 4: {'label': '4'},
@@ -227,7 +228,7 @@ app.layout = html.Div(
                                         html.Div(dcc.Input(
                                             id="max_walking_time",
                                             type='text',
-                                            value=80,
+                                            value=30,
                                             placeholder='Max total walking time'
                                         )), ], className="six columns"),
                                     html.Div([
@@ -235,7 +236,7 @@ app.layout = html.Div(
                                         html.Div(dcc.Input(
                                             id="max_waiting_time",
                                             type='text',
-                                            value=60,
+                                            value=30,
                                             placeholder='Max total waiting time'
                                         )), ], className="six columns"),
                                     html.Div([
@@ -253,7 +254,7 @@ app.layout = html.Div(
                                         html.Div(dcc.Input(
                                             id="min_review_ct",
                                             type='text',
-                                            value=30,
+                                            value=20,
                                             placeholder='Min number of reviews by bar'
                                         )), ], className="six columns"),
                                     html.Div([
@@ -261,7 +262,7 @@ app.layout = html.Div(
                                         html.Div(dcc.Input(
                                             id="min_review",
                                             type='text',
-                                            value=3.5,
+                                            value=3.0,
                                             placeholder='Min bar review'
                                         )), ], className="six columns"),
                                     html.Div([
@@ -482,7 +483,7 @@ def make_main_figure(walking_time, go_button, tab):
             accesstoken=mapbox_access_token,
             style="light",
             center=dict(lon=avg_longitude, lat=avg_latitude),
-            zoom=12,
+            zoom=14,
         ),
     )
 
@@ -525,7 +526,7 @@ def make_main_figure(n_clicks):
         mapbox=dict(
             accesstoken=mapbox_access_token,
             style="light",
-            center=dict(lon=-79.3871, lat=43.6826),
+            center=dict(lon=-79.3871, lat=43.6626),
             zoom=11,
         ),
     )
@@ -605,11 +606,12 @@ def change_focus(click, address):
         params = {"address": address, "key": config.KEY}
         r = requests.get(url, params=params)
         add = (r.json()['results'])
-        # try:
-        coordinate_dict = add[0]['geometry']['location']
-        # except:
+        try:
+          coordinate_dict = add[0]['geometry']['location']
+          print("Start coordinates {} {}".format(coordinate_dict['lat'], coordinate_dict['lng']))
+        except:
+            coordinate_dict = None
         #    coordinate_dict = {'lat':43.6426, 'lng':-79.3871}
-        print("Start coordinates {} {}".format(coordinate_dict['lat'], coordinate_dict['lng']))
 
         with open('data/start_coordinates', 'wb') as handle:
             pickle.dump(coordinate_dict, handle, protocol=pickle.HIGHEST_PROTOCOL)
@@ -675,8 +677,11 @@ def get_pareto(nclicks, clickdata, total_max_walking_time, crawl_date, start_tim
 
         with open('data/start_coordinates', 'rb') as handle:
             start_coordinates = pickle.load(handle)
-        start_coord = (start_coordinates['lat'], start_coordinates['lng'])
-        print(start_coord)
+        print(start_coordinates)
+        if start_coordinates is not None:
+            start_coord = (start_coordinates['lat'], start_coordinates['lng'])
+        else:
+            start_coord = None
         solutions = crawl_model(min_review_ct, min_review, crawl_date, budget_range, start_time, end_time, num_stops,
                                 total_max_walking_time, single_walking_time, max_waiting_time,
                                 'data/processed_data.csv', 'data/distances.csv', start_coord, unsupervised)
@@ -704,8 +709,8 @@ def get_pareto(nclicks, clickdata, total_max_walking_time, crawl_date, start_tim
         colors = list(Color("blue").range_to(Color("green"), len(xVal)))
         colors = [(255 * c.rgb[0], 255 * c.rgb[1], 255 * c.rgb[2], 0.2) for c in colors]
 
-    if total_max_walking_time != '' and clickdata is not None and float(total_max_walking_time) in xVal:
-        walking_distance = float(total_max_walking_time)
+    if selected_walking_time != '' and clickdata is not None and float(selected_walking_time) in xVal:
+        walking_distance = float(selected_walking_time)
 
         c_selected = colors[np.where(xVal == walking_distance)[0][0]]
         colors[np.where(xVal == walking_distance)[0][0]] = (c_selected[0], c_selected[1], c_selected[2], 1.0)
@@ -720,7 +725,7 @@ def get_pareto(nclicks, clickdata, total_max_walking_time, crawl_date, start_tim
         plot_bgcolor="#F9F9F9",
         paper_bgcolor="#F9F9F9",
         dragmode="select",
-        title="Select desired walking and waiting time / rating combination",
+        title="Select desired walking time / rating combination",
         font=dict(color="black"),
         xaxis=dict(
             title='Total time spent walking between bars (minutes)',

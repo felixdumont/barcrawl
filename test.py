@@ -43,12 +43,4 @@ print("--- %s seconds ---" % (time.time() - start))
 df = pd.read_csv('data/processed_data.csv')
 coordinates = list(zip(df.latitude, df.longitude))
 df['cluster'] = get_clusters(coordinates,  df['business_id'])
-
-
-import plotly.express as px
-#px.set_mapbox_access_token(open(".mapbox_token").read())
-carshare = px.data.carshare()
-fig = px.scatter_mapbox(df, lat="latitude", lon="longitude",     color="cluster",
-                  color_continuous_scale=px.colors.cyclical.IceFire, size_max=15, zoom=10)
-fig.show()
 """

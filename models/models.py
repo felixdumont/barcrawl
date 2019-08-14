@@ -215,9 +215,14 @@ def get_pareto_routes(df, start_time, end_time, bar_num, total_max_walking_time,
     """
     solutions = []
     wait_times = df['wait_time'] / 60
-    min_time = 20
     last_success = 0
-    for max_walking_time in range(min_time, int(total_max_walking_time * 60), 10):
+    if int(total_max_walking_time)*60 > 40:
+        step = 10
+        min_time=20
+    else:
+        step = 5
+        min_time=5
+    for max_walking_time in range(min_time, int(total_max_walking_time * 60), step):
         bars = []
         print("Running Pareto for max walking time {}".format(max_walking_time))
         if max_walking_time == min_time or last_success == 0:
@@ -266,6 +271,7 @@ def get_pareto_routes(df, start_time, end_time, bar_num, total_max_walking_time,
 
         best_solution = Solution(bars, total_walk_time, total_wait, avg_rating, max_walking_time)
         solutions.append(best_solution)
+
     return solutions
 
 
