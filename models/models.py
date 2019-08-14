@@ -59,16 +59,18 @@ def get_optimal_route(df, start_time, end_time, bar_num, total_max_walking_time,
     time_spent_each_bar = max(0.25, (end_time - start_time - total_max_walking_time - max_total_wait) / bar_num)
 
     y = []
-    z = [[[0 for j in range(len(locations))] for i in range(len(locations))] for k in range(bar_num - 1)]
+    #z = [[[0 for j in range(len(locations))] for i in range(len(locations))] for k in range(bar_num - 1)]
 
     # create decision variables
     for loc in bar_ids:
         y.append(m.addVar(vtype=GRB.BINARY, name="y_{}".format(loc)))
 
-    for k in range(bar_num - 1):
-        for i in range(len(locations)):
-            for j in range(len(locations)):
-                z[k][i][j] = m.addVar(vtype=GRB.BINARY, name="z_{},{},{}".format(k, locations[i], locations[j]))
+    #for k in range(bar_num - 1):
+    #    for i in range(len(locations)):
+    #        for j in range(len(locations)):
+    #            z[k][i][j] = m.addVar(vtype=GRB.BINARY, name="z_{},{},{}".format(k, locations[i], locations[j]))
+    z = [[[m.addVar(vtype=GRB.BINARY, name="z_{},{},{}".format(k, locations[i], locations[j]))
+           for j in range(len(locations))] for i in range(len(locations))] for k in range(bar_num - 1)]
 
     ### objective function
     m.setObjective(quicksum([y[i] * ratings[i] for i in range(len(locations))]), GRB.MAXIMIZE)
@@ -128,6 +130,7 @@ def get_optimal_route(df, start_time, end_time, bar_num, total_max_walking_time,
         m.addConstr(quicksum([z[k][i][j] for i in range(len(locations)) for k in range(bar_num - 1)]) <= 1)
 
     # have to start from the bar you previously went to
+
     for k in range(1, bar_num - 1):
         for i in range(len(locations)):
             m.addConstr(quicksum([z[k - 1][j][i]
@@ -151,6 +154,7 @@ def get_optimal_route(df, start_time, end_time, bar_num, total_max_walking_time,
                 quicksum([open_times[j] * quicksum([z[bar_num - 2][i][j] for i in range(len(locations))])
                           for j in range(len(locations))]))
     # Close time constraint
+
     for zed in range(bar_num - 1):
         m.addConstr(start_time + zed * time_spent_each_bar + quicksum([z[w][i][j] * (dima[i][j] + wait_times[i])
                                                                        for i in range(len(locations))
@@ -158,6 +162,7 @@ def get_optimal_route(df, start_time, end_time, bar_num, total_max_walking_time,
                                                                        for w in range(zed)]) <= quicksum(
             [close_times[i] * quicksum(z[zed][i])
              for i in range(len(locations))]))
+
     m.addConstr(start_time + (bar_num - 1)  * time_spent_each_bar + quicksum([z[w][i][j] * (dima[i][j] + wait_times[i])
                                                                    for i in range(len(locations))
                                                                    for j in range(len(locations))
@@ -176,14 +181,13 @@ def get_optimal_route(df, start_time, end_time, bar_num, total_max_walking_time,
     #m.setParam('OutputFlag', 0)  # Also dual_subproblem.params.outputflag = 0
     m.setParam('TimeLimit', 30)
     m.setParam('MIPFocus', 1)
-    print(4)
 
     for i in range(len(y_start)):
         try:
             y[i].start = y_start[i].x
         except:
             y[i].start = y_start[i]
-    print(5)
+
     for i in range(len(y_start)):
         for j in range(len(y_start)):
             for k in range(len(z_start)):

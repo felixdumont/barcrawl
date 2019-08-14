@@ -211,14 +211,13 @@ app.layout = html.Div(
                                         dcc.Slider(
                                             id='num_stops',
                                             min=0,
-                                            max=10,
-                                            value=5,
+                                            max=8,
+                                            value=4,
                                             marks={
                                                 2: {'label': '2'},
                                                 4: {'label': '4'},
                                                 6: {'label': '6'},
                                                 8: {'label': '8'},
-                                                10: {'label': '10'},
                                             }
                                         ))], className="eight columns"),
                                 html.Div([
@@ -261,7 +260,7 @@ app.layout = html.Div(
                                         html.Div(dcc.Input(
                                             id="min_review",
                                             type='text',
-                                            value=3.5,
+                                            value=4.1,
                                             placeholder='Min bar review'
                                         )), ], className="six columns"),
                                 ], className="eleven columns"),

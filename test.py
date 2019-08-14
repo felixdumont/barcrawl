@@ -14,7 +14,7 @@ wait_time_distr = [0,5,10,15,20,30]
 start = time.time()
 
 min_review_ct = 30
-min_rating = 3.5
+min_rating = 3.9
 date = datetime(2019,8,9)
 budget_range = [1, 2, 3, 4]
 start_time = 17
