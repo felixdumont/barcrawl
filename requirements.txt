@@ -4,3 +4,6 @@ gunicorn==19.9.0
 colour
 simplejson
 geopy
+sklearn
+matplotlib
+dash_daq
