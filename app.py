@@ -228,7 +228,7 @@ app.layout = html.Div(
                                         html.Div(dcc.Input(
                                             id="max_walking_time",
                                             type='text',
-                                            value=30,
+                                            value=60,
                                             placeholder='Max total walking time'
                                         )), ], className="six columns"),
                                     html.Div([
@@ -236,7 +236,7 @@ app.layout = html.Div(
                                         html.Div(dcc.Input(
                                             id="max_waiting_time",
                                             type='text',
-                                            value=30,
+                                            value=60,
                                             placeholder='Max total waiting time'
                                         )), ], className="six columns"),
                                     html.Div([
@@ -246,23 +246,23 @@ app.layout = html.Div(
                                             type='text',
                                             value=15,
                                             placeholder='Max walking time between each bar'
-                                        )), ], className="six columns"),
+                                        )), ], className="ten columns"),
                                 ], className="eleven columns"),
                                 html.Div([
                                     html.Div([
-                                        html.Label("Min number of reviews by bar"),
+                                        html.Label("Min number of reviews"),
                                         html.Div(dcc.Input(
                                             id="min_review_ct",
                                             type='text',
-                                            value=20,
+                                            value=40,
                                             placeholder='Min number of reviews by bar'
                                         )), ], className="six columns"),
                                     html.Div([
-                                        html.Label("Min bar review (from 0 to 5)"),
+                                        html.Label("Min bar review (0 to 5)"),
                                         html.Div(dcc.Input(
                                             id="min_review",
                                             type='text',
-                                            value=3.0,
+                                            value=3.5,
                                             placeholder='Min bar review'
                                         )), ], className="six columns"),
                                     html.Div([

@@ -36,8 +36,10 @@ def one_time_filter(df, city):
                     & ~df['name'].str.contains('Coffee')
                     & ~df['name'].str.contains('Restaurant')
                     & ~df['name'].str.contains('Potbelly')
-                    & ~df['name'].str.contains('Oyster'))]
-
+                    & ~df['name'].str.contains('Oyster')
+                    & ~df['name'].str.contains('Boralia')
+                    & ~df['name'].str.contains('Palette')
+                    & ~df['name'].str.contains('Canis'))]
     df_bars = openfilter(df_bars)
     df_bars = separate_attributes(df_bars)
     df_bars = cityfilter(df_bars, city)

@@ -9,9 +9,9 @@ import time
 percentiles = [0.5,0.6,0.7,0.8,0.9,1.0]
 wait_time_distr = [0,5,10,15,20,30]
 
-#df = generate_full_csv('data/business.json', 'Toronto', 'data/checkin.json',
-#                       'data/processed_data.csv', percentiles, wait_time_distr)
-
+df = generate_full_csv('data/business.json', 'Toronto', 'data/checkin.json',
+                       'data/processed_data.csv', percentiles, wait_time_distr)
+"""
 
 start = time.time()
 
@@ -39,7 +39,7 @@ for solution in solutions:
         print(bar.name + "; " + bar.id)
 
 print("--- %s seconds ---" % (time.time() - start))
-"""
+
 df = pd.read_csv('data/processed_data.csv')
 coordinates = list(zip(df.latitude, df.longitude))
 df['cluster'] = get_clusters(coordinates,  df['business_id'])
